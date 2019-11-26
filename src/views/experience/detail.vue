@@ -7,30 +7,30 @@
     <!-- 头部 -->
     <div class="wrap detail-hd">
       <dl>
-        <dt><img :src="detailData.nhsuser && detailData.nhsuser.avatarUrl"></dt>
+        <dt><img :src="detailData.users&&detailData.users.avatar"></dt>
         <dd>
-          <h4>{{detailData.nhsuser && detailData.nhsuser.username}}</h4>
-          <time>{{detailData.updated_at && detailData.updated_at.split(' ')[0]}}</time>
+          <h4>{{detailData.users&&detailData.users.username }}</h4>
+          <time>{{detailData.created_at && detailData.created_at.split(' ')[0]}}</time>
         </dd>
       </dl>
       <h2 class="detail-title">{{detailData.title}}</h2>
       <div class="tag-box">
         <span
-          v-for="(item, index) in tagList"
+          v-for="(item, index) in detailData.tags"
           :key="index"
           class="tag"
-          :class="{active:item.checked}">{{item.tag_name}}</span>
+          :class="{active:item.checked}">{{item.name}}</span>
       </div>
     </div>
     <!-- 头部 -->
     <!-- 图片or视频 -->
     <div class="img-box">
-      <video class="video" v-if="detailData.jy_post_type === '1' && detailData.img_dir" :src="baseUrl + detailData.img_dir" controls="controls">
+      <video class="video" v-if="detailData.type_id === '2' && detailData.img_url" :src="detailData.img_url" controls="controls">
         your browser does not support the video tag
       </video>
-      <van-swipe v-if="detailData.jy_post_type === '2'" :autoplay="3000" indicator-color="#f29419" style="height: 200px;">
+      <van-swipe v-if="detailData.type_id === '1'" :autoplay="3000" indicator-color="#f29419" style="height: 200px;">
         <van-swipe-item v-for="(image, index) in detailData.imageUrl" :key="index" @click="imgClick(image)">
-          <img v-lazy="baseUrl+image" />
+          <img v-lazy="image" />
         </van-swipe-item>
       </van-swipe>
     </div>
@@ -58,19 +58,18 @@
           :finished-text="finishedText"
           @load="onLoad">
           <div
-            v-for="(item, index) in comments"
+            v-for="(item, index) in detailData.comments"
             :key="index"
             class="comment-item-box line">
-            <img :src="item.avatarUrl && item.avatarUrl">
+            <img :src="item.users && item.users.avatar">
             <div class="comment-item-content">
-              <h4>{{item.username}} {{item.department}}</h4>
               <time>{{item.updated_at}}</time>
               <p>{{item.content}} <span class="reply-btn" @click="commentClick(item.id)">回复</span></p>
-              <div class="reply-box" v-if="item.replay.length > 0">
+              <div class="reply-box" v-if="item.reply&&item.reply.length > 0">
                 <div class="reply-list" :class="{show:item.show}">
-                  <p v-for="(replayItem, replayIndex) in item.replay" :key="replayIndex">{{replayItem.username}}：{{replayItem.content}}</p>
+                  <p v-for="(replyItem, replyIndex) in item.reply" :key="replyIndex">{{replyItem.username}}：{{replyItem.content}}</p>
                 </div>
-                <span v-if="item.replay.length >= 3" @click="moreReplyClick(item)">更多回复</span>
+                <span v-if="item.reply&&item.reply.length >= 3" @click="moreReplyClick(item)">更多回复</span>
               </div>
             </div>
           </div>
@@ -92,12 +91,12 @@
       <div class="btn-box" v-show="!isDiscuss">
         <span :class="{active: detailData.zan_status === '1'}" @click="praiseClick()">
           <van-icon name="like" />
-          赞 {{detailData.zanNum}}
+          赞 {{detailData.likes_count}}
         </span>
         <i class="line">|</i>
         <span @click="commentClick()">
           <van-icon name="comment" />
-          评论 {{detailData.commentsCount}}
+          评论 {{detailData.asks_count}}
         </span>
       </div>
     </div>
@@ -166,9 +165,9 @@ export default {
         this.loading = true
         this.finished = false
         this.onLoad()
-        if (this.detailData.img_dir) {
-          this.detailData.imageUrl = this.detailData.img_dir.split(',')[0] ? this.detailData.img_dir.split(',') : this.baseUrl + this.detailData.img_dir
-        }
+       if (this.detailData.img_url) {
+         this.detailData.imageUrl = this.detailData.img_url.split(',')[0] ? this.detailData.img_url.split(',') : this.baseUrl + this.detailData.img_url
+       }
       }).catch(err => {
         // 加载状态结束
         this.loading = false
@@ -247,6 +246,7 @@ export default {
         post_id: this.detailData.id,
         order_mode: this.selectVal
       }).then(res => {
+		  console.log(commentsData)
         let commentsData = res.data.comments
         commentsData.map(item => {
           this.comments.push(item)
