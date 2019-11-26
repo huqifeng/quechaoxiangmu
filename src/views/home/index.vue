@@ -1,7 +1,6 @@
 <template>
   <div class="home">
-    <van-nav-bar
-      title="首页" />
+    <van-nav-bar title="首页" />
     <!-- banner -->
     <div class="img-box" v-if="bannerList.length>0">
       <van-swipe :autoplay="3000" indicator-color="#969799" style="height: 158px;">
@@ -15,31 +14,31 @@
       <router-link to="/forum" class="forum-link">
         <h2>论坛</h2>
         <p>一个图书馆，一个聊天室，进行实时的信息交流</p>
-        <img src="../../assets/forum_icon.png">
+        <img src="../../assets/forum_icon.png" />
       </router-link>
       <div class="list-wrap">
         <div class="list">
           <router-link to="/experience" class="experience-link">
             <h2>经验分享</h2>
             <p>精英成长计划</p>
-            <img src="../../assets/experience_icon.png">
+            <img src="../../assets/experience_icon.png" />
           </router-link>
           <router-link to="/personalCenter" class="personal-link">
             <h2>个人中心</h2>
             <p>我的成长值赠送记录</p>
-            <img src="../../assets/personal_icon.png">
+            <img src="../../assets/personal_icon.png" />
           </router-link>
         </div>
         <div class="list">
-          <router-link to="" class="classroom-link">
+          <router-link to class="classroom-link">
             <h2>学术课堂</h2>
             <p>学术沃土学科前沿</p>
-            <img src="../../assets/classroom_icon.png">
+            <img src="../../assets/classroom_icon.png" />
           </router-link>
           <router-link to="/team" class="team-link">
             <h2>团队展示</h2>
             <p>SHOW出你的风采</p>
-            <img src="../../assets/team_icon.png">
+            <img src="../../assets/team_icon.png" />
           </router-link>
         </div>
       </div>
@@ -48,93 +47,101 @@
 </template>
 
 <script>
-import { getUserInfo } from '@/api/user'
-import { getBanner } from '@/api/classroom'
+import { getUserInfo } from "@/api/user";
+import { getBanner } from "@/api/classroom";
 import {
   getLocalStorage,
   getSessionStorage,
   setSessionStorage
-} from '@/utils/util'
+} from "@/utils/util";
 export default {
-  name: 'home',
-  components: {
-
-  },
-  data () {
+  name: "home",
+  components: {},
+  data() {
     return {
       baseUrl: window.baseUrl,
       bannerList: []
-    }
+    };
   },
-  mounted () {
-    if(!getSessionStorage('token')){
-      this.login()
+  mounted() {
+    if (getSessionStorage("token").length == 0) {
+      let token = getSessionStorage("token");
+      if (token.length === 0) {
+        this.login();
+      } else {
+        this.getBannerList();
+      }
     }
-    this.getBannerList()
   },
   methods: {
-    login () {
-      let data = getLocalStorage('userInfo')
+    login() {
+      let data = getLocalStorage("userInfo");
       // 登录
-      getUserInfo(data).then(res => {
-        setSessionStorage('token', res.token)
-      }).catch(err => {
-        console.log(err)
-      })
+      getUserInfo(data)
+        .then(res => {
+          debugger;
+          setSessionStorage("token", res.token);
+          this.getBannerList();
+        })
+        .catch(err => {
+          console.log(err);
+        });
     },
     // 返回上一页
-    goBack () {
-      this.$router.go(-1)
+    goBack() {
+      this.$router.go(-1);
     },
-    onClickLeft () {
-      this.goBack()
+    onClickLeft() {
+      this.goBack();
     },
-    bannerClick (item) {
-      if (item.link_type + '' === '1') {
-        switch (item.cid + '') {
-          case '1':
+    bannerClick(item) {
+      if (item.link_type + "" === "1") {
+        switch (item.cid + "") {
+          case "1":
             // 论坛
             this.$router.push({
-              path: '/forumDetail',
+              path: "/forumDetail",
               query: { id: item.url }
-            })
-            break
-          case '3':
+            });
+            break;
+          case "3":
             // 团队展示
             this.$router.push({
-              path: '/teamDetail',
+              path: "/teamDetail",
               query: { id: item.url }
-            })
-            break
-          case '2':
+            });
+            break;
+          case "2":
             // 经验分享
             this.$router.push({
-              path: '/experienceDetail',
+              path: "/experienceDetail",
               query: { id: item.url }
-            })
-            break
+            });
+            break;
           default:
             // 外部链接
             // window.location.href = item.url
-            break
+            break;
         }
-      } else if (item.link_type + '' === '2') {
-        window.location.href = item.url
+      } else if (item.link_type + "" === "2") {
+        window.location.href = item.url;
       }
     },
-    getBannerList () {
-      getBanner({ cid: 1 }).then(res => {
-        if (res.data && res.data.length > 0) {
-          this.bannerList = res.data
-        } else {
-          this.bannerList = []
-        }
-      }).catch(err => {
-        console.log(err)
-      })
+    getBannerList() {
+      getBanner({ cid: 1 })
+        .then(res => {
+          if (res.data && res.data.length > 0) {
+            this.bannerList = res.data;
+          } else {
+            this.bannerList = [];
+          }
+        })
+        .catch(err => {
+          console.log(err);
+        });
     }
   }
-}
+};
 </script>
 <style lang="less" scoped>
 .img-box .van-swipe-item img {

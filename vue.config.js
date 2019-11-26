@@ -10,7 +10,7 @@ module.exports = {
   publicPath: './',
   outputDir: 'dist',
   assetsDir: 'static',
-  lintOnSave: true, // 是否开启编译时是否不符合eslint提示
+  lintOnSave: false, // 是否开启编译时是否不符合eslint提示
   css: {
     // css预设器配置项
     loaderOptions: {

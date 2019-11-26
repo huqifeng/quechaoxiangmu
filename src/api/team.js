@@ -1,9 +1,9 @@
 import http from '@/utils/request'
 
 // 获取标签
-export function getTags (data) {
+export function getTags(data) {
   return http.request({
-    url: '/api/tags/index',
+    url: '/api/tag',
     method: 'get',
     params: {
       ...data
@@ -11,9 +11,9 @@ export function getTags (data) {
   })
 }
 // 获取 区域
-export function getRegions (data) {
+export function getRegions(data) {
   return http.request({
-    url: '/api/regions/index',
+    url: '/api/forum_region',
     method: 'get',
     params: {
       ...data
@@ -21,7 +21,7 @@ export function getRegions (data) {
   })
 }
 // 团队展示创建
-export function addTmposts (data) {
+export function addTmposts(data) {
   return http.request({
     url: '/api/tmposts/store',
     method: 'post',
@@ -29,7 +29,7 @@ export function addTmposts (data) {
   })
 }
 // 团队展示文件上传
-export function fileUpload (data) {
+export function fileUpload(data) {
   return http.request({
     url: '/api/tmposts/fileupload',
     method: 'post',
@@ -38,9 +38,9 @@ export function fileUpload (data) {
 }
 
 // 团队展示列表
-export function getTeamList (data) {
+export function getTeamList(data) {
   return http.request({
-    url: '/api/tmposts/index',
+    url: '/api/forum',
     method: 'get',
     params: {
       ...data
@@ -49,7 +49,7 @@ export function getTeamList (data) {
 }
 
 // 团队展示列表搜索
-export function searchTeamList (data) {
+export function searchTeamList(data) {
   return http.request({
     url: '/api/tmposts/searchTmpost',
     method: 'get',
@@ -60,18 +60,18 @@ export function searchTeamList (data) {
 }
 
 // 团队展示详情
-export function getTeamDetail (data) {
+export function getTeamDetail(data) {
   return http.request({
-    url: '/api/tmposts/show',
+    url: `/api/forum/${data.id}`,
     method: 'get',
     params: {
-      ...data
+      // ...data
     }
   })
 }
 
 // 团队展示帖子评论获取
-export function getCmts (data) {
+export function getCmts(data) {
   return http.request({
     url: '/api/tmposts/getCmts',
     method: 'get',
@@ -82,7 +82,7 @@ export function getCmts (data) {
 }
 
 // 团队展示点赞和取消赞
-export function setZan (data) {
+export function setZan(data) {
   return http.request({
     url: '/api/tmposts/zan',
     method: 'post',
@@ -91,7 +91,7 @@ export function setZan (data) {
 }
 
 // 团队展示详情评论帖子
-export function commentTeam (data) {
+export function commentTeam(data) {
   return http.request({
     url: '/api/tmposts/comment',
     method: 'post',

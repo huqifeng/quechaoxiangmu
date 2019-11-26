@@ -41,11 +41,13 @@
         >
           <lazy-component class="lazy-box">
             <div v-for="(item, index) in list" :key="index" class="item-box" @click="goLink(item)">
-              <img v-lazy="baseUrl+item.cover" />
+              <img v-lazy="item.imageUrl" />
               <div class="item-conten">
                 <div class="pic_box">
-                  <van-image class="pic" round :src="item.imageUrl" />
-                  <div class="name_box">{{item.nhsuser.region_id}} {{item.nhsuser.username}} {{item.nhsuser.department}}</div>
+                  <van-image class="pic" round :src="item.users.avatar" />
+                  <div
+                    class="name_box"
+                  >{{item.users.regions[0].name}} {{item.users.username}} {{item.users.job}}</div>
                 </div>
                 <p>{{item.title}}</p>
               </div>
@@ -114,9 +116,10 @@ export default {
     getRegLis() {
       getRegions()
         .then(res => {
+          debugger;
           if (res.data && res.data.length > 0) {
             this.selectList = res.data.map(item => {
-              item.text = item.region_name;
+              item.text = item.name;
               item.value = item.id;
               return item;
             });
@@ -129,15 +132,13 @@ export default {
         });
     },
     praiseClick(item) {
-      debugger
       setZan({
         post_id: item.id,
         nhsuser_id: this.userInfo.id,
         zan_nhsuser_id: item.nhsuser_id
       })
         .then(res => {
-          console.log(res)
-          debugger
+          console.log(res);
           if (item.zans_count > res.data.zanNum) {
             item.zan_status = "0";
             this.$toast("取消点赞");
@@ -154,58 +155,40 @@ export default {
     },
     // 获取列表
     onLoad() {
-      let region_name = '';
-      this.selectList.forEach((item,index)=>{
-        if(this.selectVal == item.value){
-          region_name = item.text
+      let region_name = "";
+      this.selectList.forEach((item, index) => {
+        if (this.selectVal == item.value) {
+          region_name = item.text;
         }
-      })
-      if(region_name == '全部大区'){
-        region_name = ''
+      });
+      if (region_name == "全部大区") {
+        region_name = "";
       }
       getTeamList({
-        current_page: this.curPage,
-        page_num: this.pageNum,
-        region_id: region_name,
-        order_mode: this.shortVal
+        // current_page: this.curPage,
+        // page_num: this.pageNum,
+        // region_id: region_name,
+        // order_mode: this.shortVal
+        block_id: "3"
       })
         .then(res => {
-          let tmData = res.data.tm_posts;
+          let tmData = res.data;
+          debugger;
           tmData.map(item => {
             if (item.cover) {
               item.imageUrl = this.baseUrl + item.cover;
             } else {
               item.imageUrl = "https://img.yzcdn.cn/vant/apple-1.jpg";
             }
-            // if (item.img_dir) {
-            //   item.imageUrl = item.img_dir.split(',')[0] ? this.baseUrl + item.img_dir.split(',')[0] : this.baseUrl + item.img_dir
-            // }
             this.list.push(item);
-            // let isHas = false
-            // this.list.forEach((item2,index2)=>{
-            //   if(item.id == item2.id){
-            //     isok = true
-            //   }
-            // })
-            // if(!isHas){
-            //   this.list.push(item);
-            // }
           });
           this.curPage = res.data.current_page - 0 + 1;
           this.pageNum = res.data.page_num;
           this.total = res.data.total;
 
-
           this.finished = true;
           this.loading = false;
 
-
-          // // 加载状态结束
-          // this.loading = false;
-          // // 数据全部加载完成
-          // if (this.list.length >= this.total) {
-          //   this.finished = true;
-          // }
           this.finishedText = this.list.length > 0 ? "没有更多了" : "暂无数据";
         })
         .catch(err => {

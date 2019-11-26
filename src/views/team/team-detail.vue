@@ -1,36 +1,48 @@
 <template>
   <div class="team team-detail">
-    <van-nav-bar
-      title="团队展示"
-      left-arrow
-      @click-left="onClickLeft" />
+    <van-nav-bar title="团队展示" left-arrow @click-left="onClickLeft" />
     <!-- 头部 -->
     <div class="wrap detail-hd">
       <dl>
-        <dt><img :src="detailData.nhsuser && detailData.nhsuser.avatarUrl"></dt>
+        <dt>
+          <img :src="detailData.users && detailData.users.avatar" />
+        </dt>
         <dd>
-          <h4>{{detailData.nhsuser && detailData.nhsuser.username}}</h4>
-          <time>{{detailData.updated_at && detailData.updated_at.split(' ')[0]}}</time>
+          <h4>{{detailData.users && detailData.users.username}}</h4>
+          <time>{{detailData.created_at && detailData.created_at}}</time>
         </dd>
       </dl>
       <h2 class="detail-title">{{detailData.title}}</h2>
       <div class="tag-box">
         <span
-          v-for="(item, index) in tagList"
+          v-for="(item, index) in detailData.tags"
           :key="index"
           class="tag"
-          :class="{active:item.checked}">{{item.tag_name}}</span>
+          :class="{active:item.checked}"
+        >{{item.name}}</span>
       </div>
     </div>
     <!-- 头部 -->
     <!-- 图片or视频 -->
     <div class="img-box">
-      <video class="video" v-if="detailData.tm_post_type == '1' && detailData.img_dir" :src="baseUrl + detailData.img_dir" controls="controls">
-        your browser does not support the video tag
-      </video>
-      <van-swipe v-if="detailData.tm_post_type == '2'" :autoplay="3000" indicator-color="#dd2279" style="height: 200px;">
-        <van-swipe-item v-for="(image, index) in detailData.imageUrl" :key="index" @click="imgClick(image)">
-          <img v-lazy="baseUrl+image" />
+      <video
+        class="video"
+        v-if="detailData.type_id == '1' && detailData.img_dir"
+        :src="baseUrl + detailData.img_dir"
+        controls="controls"
+      >your browser does not support the video tag</video>
+      <van-swipe
+        v-if="detailData.type_id == '2'"
+        :autoplay="3000"
+        indicator-color="#dd2279"
+        style="height: 200px;"
+      >
+        <van-swipe-item
+          v-for="(image, index) in detailData.imageUrl"
+          :key="index"
+          @click="imgClick(image)"
+        >
+          <img v-lazy="image" />
         </van-swipe-item>
       </van-swipe>
     </div>
@@ -39,9 +51,7 @@
     <div class="detail-comment">
       <div class="comment-hd">
         <van-row type="flex" justify="space-between">
-          <van-col span="12">
-            评论
-          </van-col>
+          <van-col span="12">评论</van-col>
           <van-col span="6" class="select-box">
             <van-icon class="rotate" name="exchange" />
             <van-dropdown-menu active-color="#DD2279">
@@ -56,21 +66,32 @@
           :immediate-check="false"
           :finished="finished"
           :finished-text="finishedText"
-          @load="onLoad">
+          @load="onLoad"
+        >
           <div
-            v-for="(item, index) in comments"
+            v-for="(item, index) in detailData.comments"
             :key="index"
-            class="comment-item-box line">
-            <img :src="item.avatarUrl && item.avatarUrl">
+            class="comment-item-box line"
+          >
+            <img :src="item.users && item.users.avatar" />
             <div class="comment-item-content">
-              <h4>{{item.username}} {{item.department}}</h4>
+              <h4>{{item.users && item.users.username}} {{item.users.department}}</h4>
               <time>{{item.updated_at}}</time>
-              <p>{{item.content}} <span class="reply-btn" @click="commentClick(item.id)">回复</span></p>
-              <div class="reply-box" v-if="item.replay.length > 0">
+              <p>
+                {{item.content}}
+                <span class="reply-btn" @click="commentClick(item.id)">回复</span>
+              </p>
+              <div class="reply-box" v-if="item.reply && item.reply.length > 0">
                 <div class="reply-list" :class="{show:item.show}">
-                  <p v-for="(replayItem, replayIndex) in item.replay" :key="replayIndex">{{replayItem.username}}：{{replayItem.content}}</p>
+                  <p
+                    v-for="(replayItem, replayIndex) in item.reply"
+                    :key="replayIndex"
+                  >{{replayItem.users.username}}：{{replayItem.content}}</p>
                 </div>
-                <span v-if="item.replay.length >= 3" @click="moreReplyClick(item)">更多回复</span>
+                <span
+                  v-if="item.replay && item.replay.length >= 3"
+                  @click="moreReplyClick(item)"
+                >更多回复</span>
               </div>
             </div>
           </div>
@@ -81,11 +102,7 @@
     <!-- 底部 -->
     <div class="ft">
       <div class="input-box" v-show="isDiscuss">
-        <van-search
-          left-icon=""
-          v-model="discussVal"
-          placeholder="请输入"
-          show-action>
+        <van-search left-icon v-model="discussVal" placeholder="请输入" show-action>
           <div slot="action" @click="onDiscuss()">评论</div>
         </van-search>
       </div>
@@ -106,14 +123,14 @@
 </template>
 
 <script>
-import { getTeamDetail, getCmts, setZan, commentTeam } from '@/api/team'
+import { getTeamDetail, getCmts, setZan, commentTeam } from "@/api/team";
 export default {
   computed: {
-    userInfo () {
-      return this.$store.state.userInfo
+    userInfo() {
+      return this.$store.state.userInfo;
     }
   },
-  data () {
+  data() {
     return {
       baseUrl: window.baseUrl,
       curPage: 1,
@@ -123,71 +140,72 @@ export default {
       detailData: {},
       comments: [],
       isDiscuss: false,
-      discussVal: '',
-      fromCmtid: '',
-      cmtType: '',
-      selectList: [
-        { text: '按热度', value: 1 },
-        { text: '按时间', value: 2 }
-      ],
+      discussVal: "",
+      fromCmtid: "",
+      cmtType: "",
+      selectList: [{ text: "按热度", value: 1 }, { text: "按时间", value: 2 }],
       imageList: [],
       tagList: [],
       list: [],
       loading: false,
       finished: false,
-      finishedText: '暂无数据'
-    }
+      finishedText: "暂无数据"
+    };
   },
-  mounted () {
-    this.postId = this.$route.query.id
-    this.getData()
+  mounted() {
+    this.postId = this.$route.query.id;
+    this.getData();
   },
   methods: {
     // 返回上一页
-    goBack () {
-      this.$router.go(-1)
+    goBack() {
+      this.$router.go(-1);
     },
-    onClickLeft () {
-      this.goBack()
+    onClickLeft() {
+      this.goBack();
     },
-    imgClick (item) {
+    imgClick(item) {
       // window.location.href = item
     },
-    getData () {
-      this.finished = true
-      this.loading = false
+    getData() {
+      this.finished = true;
+      this.loading = false;
       getTeamDetail({
-        post_id: this.postId,
-        order_mode: this.selectVal
-      }).then(res => {
-        console.log(res)
-        this.detailData = res.data
-        this.tagList = this.detailData.tags
-        console.log(this.tagList)
-        this.loading = true
-        this.finished = false
-        this.onLoad()
-        if (this.detailData.img_dir) {
-          this.detailData.imageUrl = this.detailData.img_dir.split(',')[0] ? this.detailData.img_dir.split(',') : this.baseUrl + this.detailData.img_dir
-        }
-      }).catch(err => {
-        // 加载状态结束
-        this.loading = false
-        console.log(err)
+        id: this.postId
       })
+        .then(res => {
+          console.log(res);
+          this.detailData = res.data;
+          // this.tagList = this.detailData.tags;
+          // console.log(this.tagList);
+          this.loading = false;
+          this.finished = true;
+          // this.onLoad();
+          if (this.detailData.imageUrl) {
+            this.detailData.imageUrl = this.detailData.imageUrl.split(",")[0];
+            // ? this.detailData.img_dir.split(",")
+            // : this.baseUrl + this.detailData.img_dir;
+          }
+        })
+        .catch(err => {
+          // 加载状态结束
+          this.loading = false;
+          this.finished = true;
+          console.log(err);
+        });
     },
-    moreReplyClick (item) {
-      let that = this
-      if (typeof item.show === 'undefined') {
-        that.$set(item, 'show', true)
+    moreReplyClick(item) {
+      let that = this;
+      if (typeof item.show === "undefined") {
+        that.$set(item, "show", true);
       } else {
-        item.show = !item.show
+        item.show = !item.show;
       }
     },
-    onDiscuss () {
-      if (this.discussVal.trim() === '') {
-        this.$toast('请输入评论内容')
-        return false
+    onDiscuss() {
+      if (this.discussVal.trim() === "") {
+        this.$toast("请输入评论内容");
+        return false;
       }
       commentTeam({
         post_id: this.detailData.id,
@@ -198,88 +216,99 @@ export default {
         from_cmtid: this.fromCmtid,
         office_status: 0,
         content: this.discussVal.trim()
-      }).then(res => {
-        console.log(res)
-        this.discussVal = ''
-        this.curPage = 1
-        this.loading = true
-        this.finished = false
-        this.comments = []
-        this.getData()
-        this.$toast('评论成功，恭喜您获得2积分')
-      }).catch(err => {
-        console.log(err)
       })
-      this.isDiscuss = false
+        .then(res => {
+          console.log(res);
+          this.discussVal = "";
+          this.curPage = 1;
+          this.loading = true;
+          this.finished = false;
+          this.comments = [];
+          this.getData();
+          this.$toast("评论成功，恭喜您获得2积分");
+        })
+        .catch(err => {
+          console.log(err);
+        });
+      this.isDiscuss = false;
     },
-    praiseClick () {
+    praiseClick() {
       setZan({
         post_id: this.detailData.id,
         nhsuser_id: this.userInfo.id,
         zan_nhsuser_id: this.detailData.nhsuser_id
-      }).then(res => {
-        if (this.detailData.zanNum > res.data.zanNum) {
-          this.detailData.zan_status = '0'
-          this.$toast('取消点赞')
-          this.detailData.zanNum = res.data.zanNum
-        } else {
-          this.detailData.zan_status = '1'
-          this.$toast('点赞成功，恭喜您获得1积分')
-          this.detailData.zanNum = res.data.zanNum
-        }
-      }).catch(err => {
-        console.log(err)
       })
+        .then(res => {
+          if (this.detailData.zanNum > res.data.zanNum) {
+            this.detailData.zan_status = "0";
+            this.$toast("取消点赞");
+            this.detailData.zanNum = res.data.zanNum;
+          } else {
+            this.detailData.zan_status = "1";
+            this.$toast("点赞成功，恭喜您获得1积分");
+            this.detailData.zanNum = res.data.zanNum;
+          }
+        })
+        .catch(err => {
+          console.log(err);
+        });
     },
-    commentClick (id) {
+    commentClick(id) {
       if (id) {
-        this.fromCmtid = id
-        this.cmtType = 2
+        this.fromCmtid = id;
+        this.cmtType = 2;
       } else {
-        this.fromCmtid = 0
-        this.cmtType = 1
+        this.fromCmtid = 0;
+        this.cmtType = 1;
       }
-      this.isDiscuss = true
+      this.isDiscuss = true;
     },
-    onLoad () {
+    onLoad() {
       getCmts({
         current_page: this.curPage,
         page_num: this.pageNum,
         post_id: this.detailData.id,
         order_mode: this.selectVal
-      }).then(res => {
-        if (res.data.comments && res.data.comments.length > 0) {
-          let commentsData = res.data.comments
-          commentsData.map(item => {
-            this.comments.push(item)
-          })
-          this.curPage = res.data.current_page ? res.data.current_page - 0 + 1 : 1 + 1
-          this.pageNum = res.data.page_num ? res.data.page_num : 10
-          this.total = res.data.total ? res.data.total : res.data.commentsCount
-        }
-
-        // 加载状态结束
-        this.loading = false
-        // 数据全部加载完成
-        if (this.comments.length >= this.total) {
-          this.finished = true
-        }
-        this.finishedText = this.comments.length > 0 ? '没有更多了' : '暂无数据'
-      }).catch(err => {
-        console.log(err)
-        this.finished = true
-        this.loading = false
       })
+        .then(res => {
+          if (res.data.comments && res.data.comments.length > 0) {
+            let commentsData = res.data.comments;
+            commentsData.map(item => {
+              this.comments.push(item);
+            });
+            this.curPage = res.data.current_page
+              ? res.data.current_page - 0 + 1
+              : 1 + 1;
+            this.pageNum = res.data.page_num ? res.data.page_num : 10;
+            this.total = res.data.total
+              ? res.data.total
+              : res.data.commentsCount;
+          }
+
+          // 加载状态结束
+          this.loading = false;
+          // 数据全部加载完成
+          if (this.comments.length >= this.total) {
+            this.finished = true;
+          }
+          this.finishedText =
+            this.comments.length > 0 ? "没有更多了" : "暂无数据";
+        })
+        .catch(err => {
+          console.log(err);
+          this.finished = true;
+          this.loading = false;
+        });
     },
-    sortClick () {
-      this.curPage = 1
-      this.loading = true
-      this.finished = false
-      this.comments = []
-      this.onLoad()
+    sortClick() {
+      this.curPage = 1;
+      this.loading = true;
+      this.finished = false;
+      this.comments = [];
+      this.onLoad();
     }
   }
-}
+};
 </script>
 
 <style lang="less" scoped>

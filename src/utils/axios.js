@@ -13,10 +13,10 @@ import {
 } from 'vant'
 
 class HttpRequest {
-  constructor () {
+  constructor() {
     this.queue = {}
   }
-  getInsideConfig (data) {
+  getInsideConfig(data) {
     const config = {
       baseURL: '/api/', // 开发环境
       // baseURL: '/', // 打包
@@ -29,18 +29,18 @@ class HttpRequest {
     }
     return config
   }
-  destroy (url) {
+  destroy(url) {
     delete this.queue[url]
     if (!Object.keys(this.queue).length) {
       // store.commit('setLoading', false)
     }
   }
-  interceptors (instance, url) {
+  interceptors(instance, url) {
     // 请求拦截
     instance.interceptors.request.use(config => {
       let token = getSessionStorage('token')
       if (token) {
-        config.headers['Authorization'] = token
+        config.headers['Authorization'] = 'Bearer' + ' ' + token
         config.headers['Accept'] = 'application/json'
       }
       this.queue[url] = true
@@ -98,7 +98,7 @@ class HttpRequest {
       return Promise.reject(error)
     })
   }
-  request (options) {
+  request(options) {
     // 判断ie浏览器,统一加时间戳
     const userAgent = navigator.userAgent
     if (userAgent.indexOf('Trident') > -1 && options.method === 'get') {
