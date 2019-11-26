@@ -3,7 +3,7 @@ import http from '@/utils/request'
 // 获取标签
 export function getTags (data) {
   return http.request({
-    url: '/api/tags/index',
+    url: '/api/tag',
     method: 'get',
     params: {
       ...data
@@ -40,7 +40,7 @@ export function fileUpload (data) {
 // 论坛列表
 export function getLtList (data) {
   return http.request({
-    url: '/api/ltposts/index',
+    url: '/api/forum',
     method: 'get',
     params: {
       ...data
@@ -73,11 +73,8 @@ export function searchLtList (data) {
 // 论坛详情
 export function getLtDetail (data) {
   return http.request({
-    url: '/api/ltposts/show',
-    method: 'get',
-    params: {
-      ...data
-    }
+    url: `/api/forum/${data.id}`,
+    method: 'get'
   })
 }
 

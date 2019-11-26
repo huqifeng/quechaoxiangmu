@@ -26,26 +26,24 @@
           {{item.text}}
         </li>
       </ul>
-      <div class="tag-select-box left">
+      <div class="tag-select-box" :class="{left: tagList[0] && tagList[0].listInfo.length > 3}">
         <div class="tag-list" v-for="(tagItem,index) in tagList" :key="index">
           <!-- <span>产 品</span> -->
-          <div
-            v-show="tagItem.tag_type === '部门' || tagItem.tag_type === '产品'"
+          <div           
             v-for="(tag, itemIndex) in tagItem.listInfo"
-            v-if="itemIndex<=2"
             :key="itemIndex"
             class="tag-type"
             @click="goList(tag)"
-          >{{tag.tag_name}}</div>
+          >{{tag.name}}</div>
         </div>
       </div>
       <van-row>
         <van-col span="24">
-          <van-tag round :color="shortVal==='1'? '#00C1B2': '#969799'" @click="sortClick('1')">
+          <van-tag round :color="shortVal==='2'? '#00C1B2': '#969799'" @click="sortClick('2')">
             最热
             <van-icon class="rotate" name="exchange" />
           </van-tag>
-          <van-tag round :color="shortVal==='2'? '#00C1B2': '#969799'" @click="sortClick('2')">
+          <van-tag round :color="shortVal==='1'? '#00C1B2': '#969799'" @click="sortClick('1')">
             最新发布
             <van-icon class="rotate" name="exchange" />
           </van-tag>
@@ -83,7 +81,7 @@
                     v-for="(itemTag, tagIndex) in item.tagList"
                     :key="tagIndex"
                     v-if="itemTag"
-                  >{{itemTag.tag_name}}</van-tag>
+                  >{{itemTag.name}}</van-tag>
                 </van-col>
                 <van-col span="12" class="item-count-box">
                   <p>赞 {{item.zans_count ? item.zans_count : 0}}</p>
@@ -111,23 +109,23 @@ export default {
       curPage: 1,
       pageNum: 10,
       total: 0,
-      seachVal: "",
+      seachVal: '',
       shortVal: "1",
-      questionStatus: "",
+      questionStatus: 0,
       questionList: [
         {
           text: "全部",
-          id: "",
+          id: 0,
           iconName: "apps-o"
         },
         {
           text: "未解答",
-          id: "0",
+          id: 1,
           iconName: "question-o"
         },
         {
           text: "已解答",
-          id: "1",
+          id: 2,
           iconName: "certificate"
         }
       ],
@@ -144,16 +142,11 @@ export default {
   },
   methods: {
     getTag() {
-      getTags({
-        post_type: 1,
-        select_mode: 1
-      })
-        .then(res => {
+      getTags().then(res => {
           this.tagList = dataDeal(res.data);
-        })
-        .catch(err => {
+      }).catch(err => {
           console.log(err);
-        });
+      });
     },
     // 返回上一页
     goBack() {
@@ -184,64 +177,21 @@ export default {
     // 获取列表
     onLoad() {
       getLtList({
-        current_page: this.curPage,
-        page_num: this.pageNum,
-        question_status: this.questionStatus||'3',
-        order_mode: this.shortVal
-      })
-        .then(res => {
-          debugger
-          let yuandata = res.data.lt_posts;
-          let ltdatas = []
-          yuandata.forEach((item3,index4)=>{
-            let isHas = false
-            ltdatas.forEach((item4,index4)=>{
-              if(item4.id == item3.id){
-                isHas = true
-              }
-            })
-            if(!isHas){
-              ltdatas.push(item3)
-            }
-          })
-          let ltData = ltdatas;
-          // let ltData = res.data.lt_posts;
-
-          
-          ltData.map(item => {
-            // let arr = item.tags ? item.tags : "";
-            // let list = arr.split(":");
-            // list.forEach((item2, index2) => {
-            //   let arr2 = item2.split(",");
-            //   console.log(arr2);
-            //   item2 = arr2;
-            // });
-            // item.tagList = list;
-            // item.tagList.forEach((item2, index2) => {
-            //   let arr2 = item2.split(",");
-            //   console.log(arr2);
-            //   item2 = arr2;
-
-            //   debugger;
-            // });
-            item.tagList = item.post_tag
+        block_id: 1,
+        order_answer: this.questionStatus,
+        order_model: this.shortVal
+      }).then(res => {
+          // debugger
+          let ltData = res.data;
+                    
+          ltData.map(item => {       
+            item.tagList = item.tags
             this.list.push(item);
           });
-          this.curPage = res.data.current_page - 0 + 1;
-          this.pageNum = res.data.page_num;
-          this.total = res.data.total;
-
 
           this.loading = false;
-            this.finished = true;
-
-
-          // // 加载状态结束
-          // this.loading = false;
-          // // 数据全部加载完成
-          // if (this.list.length >= this.total) {
-          //   this.finished = true;
-          // }
+          this.finished = true;
+          
           this.finishedText = this.list.length > 0 ? "没有更多了" : "暂无数据";
         })
         // .catch(err => {
@@ -266,7 +216,7 @@ export default {
     goLink(row) {
       this.$router.push({
         path: "/forumDetail",
-        query: { id: row.id, source: 1 }
+        query: { id: row.id }
       });
     }
   }

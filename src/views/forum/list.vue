@@ -25,11 +25,11 @@
       </ul>
       <van-row>
         <van-col span="24">
-          <van-tag round :color="shortVal==='1'? '#00C1B2': '#969799'" @click="sortClick('1')">
+          <van-tag round :color="shortVal==='1'? '#00C1B2': '#969799'" @click="sortClick('2')">
             最热
             <van-icon class="rotate" name="exchange" />
           </van-tag>
-          <van-tag round :color="shortVal==='2'? '#00C1B2': '#969799'" @click="sortClick('2')">
+          <van-tag round :color="shortVal==='2'? '#00C1B2': '#969799'" @click="sortClick('1')">
             最新发布
             <van-icon class="rotate" name="exchange" />
           </van-tag>
@@ -67,12 +67,12 @@
                     round
                     v-for="(itemTag, tagIndex) in item.tagList"
                     :key="tagIndex"
-                  >{{itemTag.tag_name}}</van-tag>
+                  >{{itemTag.name}}</van-tag>
                 </van-col>
                 <van-col span="12" class="item-count-box">
-                  <p>赞 {{item.zanNum ? item.zanNum : 0}}</p>
-                  <p>评论 {{item.cmtNum ? item.cmtNum : 0}}</p>
-                  <p>想问 {{item.askNum ? item.askNum : 0}}</p>
+                  <p>赞 {{item.zans_count}}</p>
+                  <p>评论 {{item.comments_count}}</p>
+                  <p>想问 {{item.lt_question_count}}</p>
                 </van-col>
               </van-row>
             </div>
@@ -84,15 +84,10 @@
 </template>
 
 <script>
-import { searchLtList } from "@/api/forum";
+import { getLtList } from "@/api/forum";
 export default {
   name: "forum",
   components: {},
-  computed: {
-    userInfo() {
-      return this.$store.state.userInfo;
-    }
-  },
   data() {
     return {
       baseUrl: window.baseUrl,
@@ -101,21 +96,21 @@ export default {
       total: 0,
       seachVal: "",
       shortVal: "1",
-      questionStatus: "",
+      questionStatus: "0",
       questionList: [
         {
           text: "全部",
-          id: "",
+          id: "0",
           iconName: "apps-o"
         },
         {
           text: "未解答",
-          id: "0",
+          id: "1",
           iconName: "question-o"
         },
         {
           text: "已解答",
-          id: "1",
+          id: "2",
           iconName: "certificate"
         }
       ],
@@ -160,45 +155,24 @@ export default {
     },
     // 获取列表
     onLoad() {
-      searchLtList({
-        nhsuser_id: this.userInfo.id,
-        current_page: this.curPage,
-        page_num: this.pageNum,
-        question_status: this.questionStatus||'3',
+      getLtList({
+        block_id: 1,
+        order_answer: this.questionStatus,
         keyword: this.seachVal,
         order_mode: this.shortVal,
-        tag_ids: this.selectArr
+        tag_ids: [this.selectArr]
       })
         .then(res => {
-          if (res.data.lt_posts.length > 0) {
-            let ltData = res.data.lt_posts;
-            ltData.map(item => {
-              // item.tagList = item.tags ? item.tags : [];
-              // let arr = item.tags ? item.tags : "";
-              // let list = arr.split(":");
-              // list.forEach((item2, index2) => {
-              //   let arr2 = item2.split(",");
-              //   console.log(arr2);
-              //   item2 = arr2;
-              // });
-              // item.tagList = list;
-              item.tagList = item.post_tag
+          let ltData = res.data;
+                    
+          ltData.map(item => {       
+            item.tagList = item.tags
+            this.list.push(item);
+          });
 
-              this.list.push(item);
-              // console.log(item.tagList);
-            });
-            this.curPage = res.data.current_page - 0 + 1;
-            this.pageNum = res.data.page_num;
-            this.total = res.data.total;
-          }
-          // 加载状态结束
           this.loading = false;
           this.finished = true;
-          // this.loading = false;
-          // // 数据全部加载完成
-          // if (this.list.length >= this.total) {
-          //   this.finished = true;
-          // }
+          
           this.finishedText = this.list.length > 0 ? "没有更多了" : "暂无数据";
         })
         .catch(err => {

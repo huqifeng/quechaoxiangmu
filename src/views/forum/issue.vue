@@ -12,14 +12,14 @@
       <div v-for="(tagItem,index) in tagList"
         :key="index"
         class="form-item tag-box">
-        <span class="form-item-laber">{{tagItem.tag_type}}</span>
+        <span class="form-item-laber">标签</span>
         <div>
           <span
             v-for="(item, itemIndex) in tagItem.listInfo"
             :key="itemIndex"
             @click="selectTag(item)"
             class="tag"
-            :class="{active:item.checked}">{{item.tag_name}}</span>
+            :class="{active:item.checked}">{{item.name}}</span>
         </div>
       </div>
       <div class="form-item">

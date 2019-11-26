@@ -7,10 +7,10 @@
     <!-- 头部 -->
     <div class="wrap detail-hd">
       <dl>
-        <dt><img :src="detailData.nhsuser && detailData.nhsuser.avatarUrl"></dt>
+        <dt><img :src="detailData.users && detailData.users.avatar"></dt>
         <dd>
-          <h4>{{detailData.nhsuser && detailData.nhsuser.username}}</h4>
-          <time>{{detailData.updated_at && detailData.updated_at.split(' ')[0]}}</time>
+          <h4>{{detailData.users && detailData.users.username}}</h4>
+          <time>{{detailData.created_at && detailData.created_at.split(' ')[0]}}</time>
         </dd>
       </dl>
       <div class="detail-title-box">
@@ -18,7 +18,7 @@
         <div class="inquisitive-box" :class="{active: detailData.ask === 1}" @click="addInquisitive(detailData.ask, 1, '')">
           <a href="javascript:;">
             <van-icon name="question-o" />我也想问</a>
-          <p>{{detailData.askNum}}人</p>
+          <p>{{detailData.asks_count}}人</p>
         </div>
       </div>
       <div class="tag-box">
@@ -37,7 +37,7 @@
         {{ detailData.content}}
       </div>
       <div class="detail-img">
-        <img v-show="index < 3" v-for="(item, index) in imageList" :key="index" @click="getImg(imageList,index)" :src="baseUrl + item" alt="">
+        <img v-show="index < 3" v-for="(item, index) in imageList" :key="index" @click="getImg(imageList,index)" :src="item" alt="">
       </div>
     </div>
     <!-- 评论 -->
@@ -62,50 +62,26 @@
           :immediate-check="false"
           :finished-text="finishedText"
           @load="onLoad">
-          <!-- 官方回复 -->
-          <div
-            v-for="(item) in officialLsit"
-            :key="item.id"
-            class="comment-item-box line">
-            <img :src="item.avatarUrl && item.avatarUrl">
-            <div class="comment-item-content">
-              <div class="comment-item-hd">
-                <div class="comment-item-hd-name">
-                  <h4><span class="official">官方回复</span> {{item.username}} {{item.department}}</h4>
-                  <time>{{item.updated_at}}</time>
-                </div>
-                <div v-if="userInfo.id+'' === detailData.nhsuser_id" class="accept-btn" :class="{disabled: item.caina === 1}" @click="addInquisitive(item, 2,item.id)">采纳</div>
-              </div>
-              <p>{{item.content}} <span class="reply-btn" @click="commentClick(item.id)">回复</span></p>
-              <div class="reply-box" v-if="item.replay.length > 0">
-                <div class="reply-list" :class="{show:item.show}">
-                  <p v-for="(replayItem, replayIndex) in item.replay" :key="replayIndex">{{replayItem.username}}：{{replayItem.content}}</p>
-                </div>
-                <span v-if="item.replay.length >= 3" @click="moreReplyClick(item)">更多回复</span>
-              </div>
-            </div>
-          </div>
-          <!-- 官方回复 -->
           <!-- 评论列表回复 -->
           <div
-            v-for="(item, index) in comments"
+            v-for="(item, index) in officialLsit"
             :key="index"
             class="comment-item-box line ssss">
-            <img :src="item.avatarUrl && item.avatarUrl">
+            <img :src="item.users.avatar && item.users.avatar">
             <div class="comment-item-content">
               <div class="comment-item-hd">
                 <div class="comment-item-hd-name">
-                  <h4>{{item.username}} {{item.department}}</h4>
+                  <h4><span v-if="item.is_office" class="official">官方回复</span>{{item.users.username}} {{item.users.department}}</h4>
                   <time>{{item.updated_at}}</time>
                 </div>
                 <div v-if="userInfo.id+'' === detailData.nhsuser_id" class="accept-btn" :class="{disabled: item.caina === 1}" @click="addInquisitive(item, 2,item.id)">采纳</div>
               </div>
               <p>{{item.content}} <span class="reply-btn" @click="commentClick(item.id)">回复</span></p>
-              <div class="reply-box" v-if="item.replay&&item.replay.length > 0">
+              <div class="reply-box" v-if="item.reply&&item.reply.length > 0">
                 <div class="reply-list" :class="{show:item.show}">
-                  <p v-for="(replayItem, replayIndex) in item.replay" :key="replayIndex">{{replayItem.username}}：{{replayItem.content}}</p>
+                  <p v-for="(replayItem, replayIndex) in item.reply" :key="replayIndex">{{replayItem.users.username}}：{{replayItem.content}}</p>
                 </div>
-                <span v-if="item.replay && item.replay.length >= 3" @click="moreReplyClick(item)">更多回复</span>
+                <span v-if="item.reply && item.reply.length >= 3" @click="moreReplyClick(item)">更多回复</span>
               </div>
             </div>
           </div>
@@ -134,12 +110,12 @@
       <div class="btn-box" v-show="!isDiscuss">
         <span :class="{active: detailData.zan_status === '1'}" @click="praiseClick()">
           <van-icon name="like" />
-          赞 {{detailData.zanNum}}
+          赞 {{detailData.likes_count}}
         </span>
         <i class="line">|</i>
         <span @click="commentClick()">
           <van-icon name="comment" />
-          评论 {{detailData.commentsCount}}
+          评论 {{detailData.comments_count}}
         </span>
       </div>
     </div>
@@ -149,7 +125,7 @@
 
 <script>
 import { ImagePreview } from 'vant'
-import { getLtDetail, getCmts, setZan, commentLt, addOpera } from '@/api/forum'
+import { getLtDetail, setZan, commentLt, addOpera } from '@/api/forum'
 export default {
   computed: {
     userInfo () {
@@ -184,7 +160,7 @@ export default {
   },
   mounted () {
     this.postId = this.$route.query.id
-    // this.getData()
+    this.getData()
   },
   methods: {
     // 返回上一页
@@ -198,7 +174,7 @@ export default {
       let _this = this
       let imagesList = []
       images.map(function (item) {
-        imagesList.push(_this.baseUrl + item)
+        imagesList.push(item)
       })
       ImagePreview({
         images: imagesList,
@@ -215,19 +191,18 @@ export default {
       that.finished = true
       that.loading = false
       getLtDetail({
-        nhsuser_id: that.userInfo.id,
-        post_id: that.postId,
-        order_mode: that.selectVal
+        id: that.postId
       }).then(res => {
         that.detailData = res.data
         that.officialLsit = that.detailData.comments
         that.tagList = that.detailData.tags
         that.loading = false
         that.finished = true
-        that.onLoad()
-        if (that.detailData.img_dir) {
-          that.imageList = that.detailData.img_dir.split(',')[0] ? that.detailData.img_dir.split(',') : that.baseUrl + that.detailData.img_dir
+
+        if (that.detailData.img_url) {
+          that.imageList = that.detailData.img_url.split(',')[0] ? that.detailData.img_url.split(',') : [that.detailData.img_url]
         }
+        this.finishedText = this.officialLsit.length > 0 ? "没有更多了" : "暂无数据";
       }).catch(err => {
         // 加载状态结束
         this.loading = false

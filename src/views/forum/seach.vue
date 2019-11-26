@@ -21,9 +21,9 @@
         :key="index"
         class="tag-box">
         <h2>
-          <img v-if="tagItem.tag_type === '产品'" src="../../assets/icon_tag.png" />
-          <img v-if="tagItem.tag_type === '部门'" src="../../assets/icon_tag1.png" />
-          {{tagItem.tag_type}}
+          <!-- <img v-if="tagItem.tag_type === '产品'" src="../../assets/icon_tag.png" />
+          <img v-if="tagItem.tag_type === '部门'" src="../../assets/icon_tag1.png" /> -->
+          {{tagItem.name}}
         </h2>
         <div>
           <span
@@ -31,7 +31,7 @@
             :key="itemIndex"
             @click="selectTag(item)"
             class="tag"
-            :class="{active:item.checked}">{{item.tag_name}}</span>
+            :class="{active:item.checked}">{{item.name}}</span>
         </div>
       </div>
     </div>
@@ -55,10 +55,7 @@ export default {
   },
   methods: {
     getTag () {
-      getTags({
-        tag_type: 1,
-        select_mode: 1
-      }).then(res => {
+      getTags().then(res => {
         this.tagList = dataDeal(res.data)
         console.log(this.tagList)
       }).catch(err => {
