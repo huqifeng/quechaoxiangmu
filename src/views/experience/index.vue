@@ -50,7 +50,7 @@
               class="item-box"
               @click="goLink(item)">
               <img
-                v-lazy="item.imageUrl">
+                v-lazy="item.img_url">
               <div class="item-conten">
                 <div class="pic_box">
                   <van-image
@@ -58,7 +58,7 @@
                     round
                     :src="item.avatarUrl" />
                   <div class="name_box">
-                    {{item.region_id}} {{item.username}} {{item.department}}
+                    {{item.users.id}} {{item.users.username}} {{item.users.job}}
                   </div>
                 </div>
                 <p>{{item.title}}</p>
@@ -66,11 +66,11 @@
               <div class="item-ft">
                 <span :class="{active: item.zan_status === '1'}"
                   @click.stop="praiseClick(item)">
-                  <van-icon name="like" />{{item.zanNum ? item.zanNum : 0}}
+                  <van-icon name="like" />{{item.likes_count ? item.likes_count : 0}}
                 </span>
                 <i class="line">|</i>
                 <span>
-                  <van-icon name="comment" />{{item.cmtNum ? item.cmtNum : 0}}
+                  <van-icon name="comment" />{{item.asks_count ? item.asks_count : 0}}
                 </span>
               </div>
             </div>
@@ -94,6 +94,7 @@ export default {
   data () {
     return {
       baseUrl: window.baseUrl,
+	  region_id:'',
       curPage: 1,
       pageNum: 10,
       total: 0,
@@ -206,7 +207,9 @@ export default {
         region_id: region_name,
         order_mode: this.shortVal
       }).then(res => {
-        let jyData = res.data.jy_posts
+		  //console.log(res.data)
+        let jyData = res.data
+		
         jyData.map(item => {
           if (item.cover) {
             item.imageUrl = this.baseUrl + item.cover
@@ -224,24 +227,26 @@ export default {
 
         // 加载状态结束
         this.loading = false
+		this.finished = true
         // 数据全部加载完成
-        if (this.list.length >= this.total) {
-          this.finished = true
-        }
+        // if (this.list.length >= this.total) {
+        //   this.finished = true
+        // }
         this.finishedText = this.list.length > 0 ? '没有更多了' : '暂无数据'
       }).catch(err => {
         // 加载状态结束
-        this.finished = true
-        this.loading = false
+        // this.finished = true
+        // this.loading = false
         console.log(err)
       })
     },
     // 获取区域
     getRegLis () {
       getRegions().then(res => {
+		  console.log(res)
         if (res.data && res.data.length > 0) {
           this.selectList = res.data.map(item => {
-            item.text = item.region_name
+            item.text = item.name
             item.value = item.id
             return item
           })

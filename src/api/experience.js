@@ -12,7 +12,8 @@ export function getBanner (data) {
 // 获取标签
 export function getTags (data) {
   return http.request({
-    url: '/api/tags/index',
+    //url: '/api/tags/index',http://qc.gf.bj.cn/api/tag
+	url: '/api/tag',
     method: 'get',
     params: {
       ...data
@@ -22,7 +23,8 @@ export function getTags (data) {
 // 获取 区域
 export function getRegions (data) {
   return http.request({
-    url: '/api/regions/index',
+   // url: '/api/regions/index',
+    url:'api/forum_region',
     method: 'get',
     params: {
       ...data
@@ -33,7 +35,8 @@ export function getRegions (data) {
 // 经验分享列表
 export function getJyList (data) {
   return http.request({
-    url: '/api/jyposts/index',
+    //url: '/api/jyposts/index',
+	 url: '/api/forum?block_id=2',
     method: 'get',
     params: {
       ...data
@@ -55,7 +58,7 @@ export function searchJyList (data) {
 // 经验分享详情
 export function getJyDetail (data) {
   return http.request({
-    url: '/api/jyposts/show',
+    url: `/api/forum/${data.post_id}`,
     method: 'get',
     params: {
       ...data
