@@ -63,7 +63,6 @@ export default {
       bannerList: []
     };
   },
-<<<<<<< HEAD
   mounted() {
     if (getSessionStorage("token").length == 0) {
       let token = getSessionStorage("token");
@@ -87,17 +86,6 @@ export default {
         .catch(err => {
           console.log(err);
         });
-=======
-  mounted () {
-      let token = getSessionStorage('token')
-      console.log(token.length)
-      if(token.length === 0){
-        this.login()
-      } else {
-        this.getBannerList()
-      }
-      
->>>>>>> ff6a49ea6e0985096904f0a5c033e13d8402b450
     },
   methods: {
     login () {

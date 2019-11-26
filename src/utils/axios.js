@@ -40,11 +40,7 @@ class HttpRequest {
     instance.interceptors.request.use(config => {
       let token = getSessionStorage('token')
       if (token) {
-<<<<<<< HEAD
-        config.headers['Authorization'] = 'Bearer' + ' ' + token
-=======
-        config.headers['Authorization'] = 'Bearer '+token
->>>>>>> ff6a49ea6e0985096904f0a5c033e13d8402b450
+        config.headers['Authorization'] = 'Bearer ' + token
         config.headers['Accept'] = 'application/json'
       }
       this.queue[url] = true
