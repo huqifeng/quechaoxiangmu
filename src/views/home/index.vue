@@ -79,7 +79,6 @@ export default {
       // 登录
       getUserInfo(data)
         .then(res => {
-          debugger;
           setSessionStorage("token", res.token);
           this.getBannerList();
         })
@@ -87,17 +86,6 @@ export default {
           console.log(err);
         });
     },
-  methods: {
-    login () {
-          let data = getLocalStorage('userInfo')
-          // 登录
-          getUserInfo(data).then(res => {
-            setSessionStorage('token', res.token)
-            this.getBannerList()
-          }).catch(err => {
-            console.log(err)
-          })
-        },
     // 返回上一页
     goBack() {
       this.$router.go(-1);
