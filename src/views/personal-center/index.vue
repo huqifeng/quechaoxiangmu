@@ -9,7 +9,7 @@
         <!-- info="9" -->
         <van-icon name="bell" @click="goInfo()" />
       </div>
-      <div class="personal-pic"><img :src="userInfo.avatarUrl"></div>
+      <div class="personal-pic"><img :src="userInfo.avatar"></div>
       <p class="personal-name">{{userInfo.username}} {{userInfo.department}}</p>
       <div class="personal-body-box">
         <van-tabs v-model="activeName" @change="tabChange">
@@ -71,7 +71,7 @@
                 <div class="line list-item" @click="goLink(postItem)">
                   <div class="item-title inaline">
                     <p class="inaline">{{postItem.title}}</p>
-                    <span>{{postItem.updated_at && postItem.updated_at.split(' ')[0]}}</span>
+                    <span>{{postItem.created_at && postItem.created_at.split(' ')[0]}}</span>
                   </div>
                   <van-icon name="arrow" />
                 </div>
@@ -95,7 +95,7 @@
                 <div class="line list-item" @click="goLink(videoItem)">
                   <div class="item-title inaline">
                     <p class="inaline">{{videoItem.title}}</p>
-                    <span>{{videoItem.updated_at && videoItem.updated_at.split(' ')[0]}}</span>
+                    <span>{{videoItem.created_at && videoItem.created_at.split(' ')[0]}}</span>
                   </div>
                   <van-icon name="arrow" />
                 </div>
@@ -112,18 +112,14 @@
 </template>
 
 <script>
-import { getUserJifens, getUserPosts, delpost, delTmPost } from '@/api/user'
+import { getUserJifens, getUserPosts, delpost, delTmPost, getUser } from '@/api/user'
 
 export default {
-  computed: {
-    userInfo () {
-      return this.$store.state.userInfo
-    }
-  },
   data () {
     return {
       alljifen: 0,
       activeName: 0,
+      userInfo: {},
       nhsuser: {},
       jifens: {},
       postsList: [],
@@ -134,12 +130,21 @@ export default {
     }
   },
   mounted () {
-    this.getJifens()
+    this.getUserInfo()
+    // this.getJifens()
   },
   methods: {
+    getUserInfo () {
+      // 获取健康值
+      getUser().then(res => {
+        this.userInfo = res.data
+      }).catch(err => {
+        console.log(err)
+      })
+    },
     tabChange (name, title) {
       if (name === 0) {
-        this.getJifens()
+        // this.getJifens()
       } else {
         this.getPosts(name)
       }
@@ -208,13 +213,10 @@ export default {
         postType = 1
       }
       if (name === 2) {
-        postType = 2
+        postType = 3
       }
       getUserPosts({
-        id: this.userInfo.id,
-        post_type: postType,
-        page_num: this.pageNum,
-        current_page: this.curPage
+        block_id: postType
       }).then(res => {
         // let list = [{
         //   id: '1',
@@ -222,10 +224,10 @@ export default {
         //   updated_at: '2019-11-08 12:00:00'
         // }]
         if (name === 1) {
-          this.postsList = res.data.posts
+          this.postsList = res.data
         }
         if (name === 2) {
-          this.videoList = res.data.posts
+          this.videoList = res.data
         }
       }).catch(err => {
         console.log(err)
@@ -243,7 +245,7 @@ export default {
       // this.$router.push({
       //   path: '/exchangeList'
       // })
-      this.$toast('敬请期待');
+      this.$toast('敬请期待')
     },
     goLink (row) {
       if (this.activeName === 1) {

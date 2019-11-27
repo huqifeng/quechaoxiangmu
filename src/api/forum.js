@@ -23,7 +23,7 @@ export function getRegions (data) {
 // 论坛创建
 export function addLtposts (data) {
   return http.request({
-    url: '/api/ltposts/store',
+    url: '/api/forum',
     method: 'post',
     data
   })
@@ -31,7 +31,7 @@ export function addLtposts (data) {
 // 论坛文件上传
 export function fileUpload (data) {
   return http.request({
-    url: '/api/ltposts/fileupload',
+    url: '/api/upload ',
     method: 'post',
     data
   })
@@ -47,17 +47,6 @@ export function getLtList (data) {
     }
   })
 }
-
-// 论坛列表搜索
-// export function searchLtList (data) {
-//   return http.request({
-//     url: '/api/ltposts/searchLtpost',
-//     method: 'get',
-//     params: {
-//       ...data
-//     }
-//   })
-// }
 
 // 论坛列表搜索
 export function searchLtList (data) {

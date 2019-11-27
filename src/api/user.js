@@ -9,6 +9,15 @@ export function getUserInfo (data) {
   })
 }
 
+// 获取用户信息
+export function getUser (data) {
+  return http.request({
+    url: '/api/user',
+    method: 'get',
+    data
+  })
+}
+
 // 获取我的健康值 个人中心
 export function getUserJifens (data) {
   return http.request({
@@ -23,7 +32,7 @@ export function getUserJifens (data) {
 // 获取我的提问和我的视频 个人中心
 export function getUserPosts (data) {
   return http.request({
-    url: '/api/nhsusers/userPosts',
+    url: '/api/getMyForum',
     method: 'get',
     params: {
       ...data

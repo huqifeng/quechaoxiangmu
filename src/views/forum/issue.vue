@@ -33,7 +33,7 @@
           <van-dropdown-item v-model="selectVal" :disabled="fileList.length>0" :options="selectList" @click="selectClick()" />
         </van-dropdown-menu> -->
         <van-uploader
-          v-if="selectVal===2"
+          v-if="selectVal===1"
           v-model="fileList"
           accept="image/*"
           :after-read="afterRead"
@@ -70,14 +70,14 @@ export default {
   data () {
     return {
       titleVal: '',
-      selectVal: 2,
+      selectVal: 1,
       selectArr: [],
       textVal: '',
       fileLen: 9,
       selectList: [
-        { text: '图片', value: 2 }
+        { text: '图片', value: 1 }
         // ,
-        // { text: '视频', value: 1 }
+        // { text: '视频', value: 2 }
       ],
       tagList: [],
       fileList: [],
@@ -126,7 +126,7 @@ export default {
       fileUpload(formData).then(res => {
         this.$toast.clear()
         this.$toast.success('上传成功')
-        this.fileVals.push(res.data.file_path)
+        this.fileVals.push(res.data.picUrl)
       }).catch(err => {
         console.log(err)
       })
@@ -139,13 +139,13 @@ export default {
       let FileExt = file.name.replace(/.+\./, '')
       let isLimit = file.size / 1024 / 1024 <= 100
       console.log(file)
-      if (this.selectVal === 2) {
+      if (this.selectVal === 1) {
         if (['jpg', 'png', 'jpeg', 'pic', 'tif', 'bmp', 'gif'].indexOf(FileExt.toLowerCase()) === -1) {
           this.$toast.fail('请上传图片')
           return false
         }
       }
-      if (this.selectVal === 1) {
+      if (this.selectVal === 2) {
         if (['mp4', 'avi'].indexOf(FileExt.toLowerCase()) === -1) {
           this.$toast.fail('请上传视频')
           return false
@@ -177,14 +177,12 @@ export default {
     submit () {
       console.log(this.fileVals)
       let data = {
-        nhsuser_id: this.userInfo.id,
-        region_id: this.userInfo.region_id,
+        block_id: 1,
+        type_id: this.selectVal,
         title: this.titleVal.trim(),
         content: this.textVal,
-        tags: this.selectArr.join(','),
-        lt_post_type: this.selectVal,
-        img_dir: this.fileVals.join(','),
-        question_status: 0
+        tag_ids: this.selectArr,
+        img_url: this.fileVals
       }
       console.log(data)
       addLtposts(data).then(res => {
