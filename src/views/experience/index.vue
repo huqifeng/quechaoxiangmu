@@ -58,7 +58,7 @@
                 <p>{{item.title}}</p>
               </div>
               <div class="item-ft">
-                <span :class="{active: item.zan_status === '1'}" @click.stop="praiseClick(item)">
+                <span :class="{active: item.user_likes != null}" @click.stop="praiseClick(item)">
                   <van-icon name="like" />
                   {{item.likes_count ? item.likes_count : 0}}
                 </span>
@@ -155,19 +155,28 @@ export default {
     },
     praiseClick(item) {
       setZan({
-        post_id: item.id,
-        nhsuser_id: this.userInfo.id,
-        zan_nhsuser_id: item.nhsuser_id
+        forum_id: item.id
+        // nhsuser_id: this.userInfo.id,
+        // zan_nhsuser_id: item.nhsuser_id
       })
         .then(res => {
-          if (item.zanNum > res.data.zanNum) {
-            item.zan_status = "0";
-            this.$toast("取消点赞");
-            item.zanNum = res.data.zanNum;
+          // if (item.zanNum > res.data.zanNum) {
+          //   item.zan_status = "0";
+          //   this.$toast("取消点赞");
+          //   item.zanNum = res.data.zanNum;
+          // } else {
+          //   item.zan_status = "1";
+          //   this.$toast("点赞成功，恭喜您获得2积分");
+          //   item.zanNum = res.data.zanNum;
+          // }
+          if (res.data.is_like) {
+            this.$toast("点赞成功");
+            item.likes_count++;
+            item.user_likes = true;
           } else {
-            item.zan_status = "1";
-            this.$toast("点赞成功，恭喜您获得2积分");
-            item.zanNum = res.data.zanNum;
+            this.$toast("取消点赞");
+            item.likes_count--;
+            item.user_likes = null;
           }
         })
         .catch(err => {

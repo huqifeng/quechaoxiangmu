@@ -80,16 +80,16 @@ export function getCmts(data) {
 // 经验分享点赞和取消赞
 export function setZan(data) {
   return http.request({
-    url: '/api/jyposts/zan',
+    url: '/api/forumuserlike',
     method: 'post',
     data
   })
 }
 
-// 经验分享详情评论帖子
-export function commentJy(data) {
+// 经验分享详情二级回复
+export function forumCommentReply(data) {
   return http.request({
-    url: '/api/jyposts/comment',
+    url: '/api/forum_comment_reply ',
     method: 'post',
     data
   })

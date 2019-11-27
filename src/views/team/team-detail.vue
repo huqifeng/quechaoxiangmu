@@ -107,7 +107,7 @@
         </van-search>
       </div>
       <div class="btn-box" v-show="!isDiscuss">
-        <span :class="{active: detailData.zan_status === '1'}" @click="praiseClick()">
+        <span :class="{active: detailData.user_likes != null}" @click="praiseClick()">
           <van-icon name="like" />
           赞 {{detailData.likes_count}}
         </span>
@@ -123,7 +123,13 @@
 </template>
 
 <script>
-import { getTeamDetail, getCmts, setZan, commentTeam } from "@/api/team";
+import {
+  getTeamDetail,
+  getCmts,
+  setZan,
+  commentTeam,
+  forumCommentReply
+} from "@/api/team";
 export default {
   computed: {
     userInfo() {
@@ -209,47 +215,95 @@ export default {
         this.$toast("请输入评论内容");
         return false;
       }
-      commentTeam({
-        post_id: this.detailData.id,
-        nhsuser_id: this.detailData.nhsuser_id,
-        reply_nhsuser_id: this.userInfo.id,
-        cmt_type: this.cmtType,
-        post_type: 2,
-        from_cmtid: this.fromCmtid,
-        office_status: 0,
-        content: this.discussVal.trim()
-      })
-        .then(res => {
-          console.log(res);
-          this.discussVal = "";
-          this.curPage = 1;
-          this.loading = true;
-          this.finished = false;
-          this.comments = [];
-          this.getData();
-          this.$toast("评论成功，恭喜您获得2积分");
+      // debugger;
+      // return;
+      if (this.cmtType == 1) {
+        commentTeam({
+          forum_id: this.detailData.id,
+          block_id: "3",
+          content: this.discussVal.trim()
         })
-        .catch(err => {
-          console.log(err);
-        });
-      this.isDiscuss = false;
+          .then(res => {
+            console.log(res);
+            this.discussVal = "";
+            this.curPage = 1;
+            this.loading = true;
+            this.finished = false;
+            this.comments = [];
+            this.getData();
+            this.$toast("评论成功，恭喜您获得2积分");
+          })
+          .catch(err => {
+            console.log(err);
+          });
+        this.isDiscuss = false;
+      } else if (this.cmtType == 2) {
+        forumCommentReply({
+          forum_id: this.detailData.id,
+          forum_comment_id: this.fromCmtid,
+          block_id: "3",
+          content: this.discussVal.trim()
+        })
+          .then(res => {
+            console.log(res);
+            this.discussVal = "";
+            this.curPage = 1;
+            this.loading = true;
+            this.finished = false;
+            this.comments = [];
+            this.getData();
+            this.$toast("评论成功，恭喜您获得2积分");
+          })
+          .catch(err => {
+            console.log(err);
+          });
+        this.isDiscuss = false;
+      }
+      // commentTeam({
+      //   forum_id: this.detailData.id,
+      //   block_id: "3",
+      //   content: this.discussVal.trim()
+      // })
+      //   .then(res => {
+      //     console.log(res);
+      //     this.discussVal = "";
+      //     this.curPage = 1;
+      //     this.loading = true;
+      //     this.finished = false;
+      //     this.comments = [];
+      //     this.getData();
+      //     this.$toast("评论成功，恭喜您获得2积分");
+      //   })
+      //   .catch(err => {
+      //     console.log(err);
+      //   });
+      // this.isDiscuss = false;
     },
     praiseClick() {
       setZan({
-        post_id: this.detailData.id,
-        nhsuser_id: this.userInfo.id,
-        zan_nhsuser_id: this.detailData.nhsuser_id
+        forum_id: this.detailData.id
+        // nhsuser_id: this.userInfo.id,
+        // zan_nhsuser_id: this.detailData.nhsuser_id
       })
         .then(res => {
-          if (this.detailData.zanNum > res.data.zanNum) {
-            this.detailData.zan_status = "0";
-            this.$toast("取消点赞");
-            this.detailData.zanNum = res.data.zanNum;
+          if (res.data.is_like) {
+            this.$toast("点赞成功");
+            this.detailData.likes_count++;
+            this.detailData.user_likes = true;
           } else {
-            this.detailData.zan_status = "1";
-            this.$toast("点赞成功，恭喜您获得1积分");
-            this.detailData.zanNum = res.data.zanNum;
+            this.$toast("取消点赞");
+            this.detailData.likes_count--;
+            this.detailData.user_likes = null;
           }
+          // if (this.detailData.zanNum > res.data.zanNum) {
+          //   this.detailData.zan_status = "0";
+          //   this.$toast("取消点赞");
+          //   this.detailData.zanNum = res.data.zanNum;
+          // } else {
+          //   this.detailData.zan_status = "1";
+          //   this.$toast("点赞成功，恭喜您获得1积分");
+          //   this.detailData.zanNum = res.data.zanNum;
+          // }
         })
         .catch(err => {
           console.log(err);
@@ -287,12 +341,15 @@ export default {
               : res.data.commentsCount;
           }
 
-          // 加载状态结束
+          // // 加载状态结束
+          // this.loading = false;
+          // // 数据全部加载完成
+          // if (this.comments.length >= this.total) {
+          //   this.finished = true;
+          // }
+          this.finished = true;
           this.loading = false;
-          // 数据全部加载完成
-          if (this.comments.length >= this.total) {
-            this.finished = true;
-          }
+
           this.finishedText =
             this.comments.length > 0 ? "没有更多了" : "暂无数据";
         })

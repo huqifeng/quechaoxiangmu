@@ -103,14 +103,14 @@
         </van-search>
       </div>
       <div class="btn-box" v-show="!isDiscuss">
-        <span :class="{active: detailData.zan_status === '1'}" @click="praiseClick()">
+        <span :class="{active: detailData.user_likes != null}" @click="praiseClick()">
           <van-icon name="like" />
           赞 {{detailData.likes_count}}
         </span>
         <i class="line">|</i>
         <span @click="commentClick()">
           <van-icon name="comment" />
-          评论 {{detailData.asks_count}}
+          评论 {{detailData.comments_count}}
         </span>
       </div>
     </div>
@@ -119,7 +119,13 @@
 </template>
 
 <script>
-import { getJyDetail, getCmts, setZan, commentJy } from "@/api/experience";
+import {
+  getJyDetail,
+  getCmts,
+  setZan,
+  commentJy,
+  forumCommentReply
+} from "@/api/experience";
 export default {
   computed: {
     userInfo() {
@@ -202,47 +208,74 @@ export default {
         this.$toast("请输入评论内容");
         return false;
       }
-      commentJy({
-        post_id: this.detailData.id,
-        nhsuser_id: this.detailData.nhsuser_id,
-        reply_nhsuser_id: this.userInfo.id,
-        cmt_type: this.cmtType,
-        post_type: 3,
-        from_cmtid: this.fromCmtid,
-        office_status: 0,
-        content: this.discussVal.trim()
-      })
-        .then(res => {
-          console.log(res);
-          this.$toast("评论成功，恭喜您获得1积分");
-          this.discussVal = "";
-          this.curPage = 1;
-          this.loading = true;
-          this.finished = false;
-          this.comments = [];
-          this.getData();
+      if (this.cmtType == 1) {
+        commentJy({
+          forum_id: this.detailData.id,
+          block_id: "2",
+          content: this.discussVal.trim()
         })
-        .catch(err => {
-          console.log(err);
-        });
-      this.isDiscuss = false;
+          .then(res => {
+            console.log(res);
+            this.$toast("评论成功，恭喜您获得1积分");
+            this.discussVal = "";
+            this.curPage = 1;
+            this.loading = true;
+            this.finished = false;
+            this.comments = [];
+            this.getData();
+          })
+          .catch(err => {
+            console.log(err);
+          });
+        this.isDiscuss = false;
+      } else if (this.cmtType == 2) {
+        forumCommentReply({
+          forum_id: this.detailData.id,
+          forum_comment_id: this.fromCmtid,
+          block_id: "2",
+          content: this.discussVal.trim()
+        })
+          .then(res => {
+            console.log(res);
+            this.discussVal = "";
+            this.curPage = 1;
+            this.loading = true;
+            this.finished = false;
+            this.comments = [];
+            this.getData();
+            this.$toast("评论成功，恭喜您获得2积分");
+          })
+          .catch(err => {
+            console.log(err);
+          });
+        this.isDiscuss = false;
+      }
     },
     praiseClick() {
       setZan({
-        post_id: this.detailData.id,
-        nhsuser_id: this.userInfo.id,
-        zan_nhsuser_id: this.detailData.nhsuser_id
+        forum_id: this.detailData.id
+        // nhsuser_id: this.userInfo.id,
+        // zan_nhsuser_id: this.detailData.nhsuser_id
       })
         .then(res => {
-          if (this.detailData.zanNum > res.data.zanNum) {
-            this.detailData.zan_status = "0";
-            this.$toast("取消点赞");
-            this.detailData.zanNum = res.data.zanNum;
+          if (res.data.is_like) {
+            this.$toast("点赞成功");
+            this.detailData.likes_count++;
+            this.detailData.user_likes = true;
           } else {
-            this.detailData.zan_status = "1";
-            this.$toast("点赞成功，恭喜您获得2积分");
-            this.detailData.zanNum = res.data.zanNum;
+            this.$toast("取消点赞");
+            this.detailData.likes_count--;
+            this.detailData.user_likes = null;
           }
+          // if (this.detailData.zanNum > res.data.zanNum) {
+          //   this.detailData.zan_status = "0";
+          //   this.$toast("取消点赞");
+          //   this.detailData.zanNum = res.data.zanNum;
+          // } else {
+          //   this.detailData.zan_status = "1";
+          //   this.$toast("点赞成功，恭喜您获得2积分");
+          //   this.detailData.zanNum = res.data.zanNum;
+          // }
         })
         .catch(err => {
           console.log(err);

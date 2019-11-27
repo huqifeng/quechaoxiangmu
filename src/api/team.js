@@ -84,7 +84,7 @@ export function getCmts(data) {
 // 团队展示点赞和取消赞
 export function setZan(data) {
   return http.request({
-    url: '/api/tmposts/zan',
+    url: '/api/forumuserlike',
     method: 'post',
     data
   })
@@ -93,7 +93,16 @@ export function setZan(data) {
 // 团队展示详情评论帖子
 export function commentTeam(data) {
   return http.request({
-    url: '/api/tmposts/comment',
+    url: '/api/forum_comment',
+    method: 'post',
+    data
+  })
+}
+
+// 团队展示详情二级回复
+export function forumCommentReply(data) {
+  return http.request({
+    url: '/api/forum_comment_reply ',
     method: 'post',
     data
   })

@@ -172,7 +172,7 @@ export default {
         block_id: 3,
         type_id: this.selectVal,
         title: this.titleVal.trim(),
-        img_url: this.fileVals
+        img_url: this.fileVals.join(",")
         // region_id: this.userInfo.region_id,
         // title: this.titleVal.trim(),
         // tags: this.selectArr.join(","),
