@@ -29,7 +29,7 @@
       <div class="tag-select-box" :class="{left: tagList[0] && tagList[0].listInfo.length > 3}">
         <div class="tag-list" v-for="(tagItem,index) in tagList" :key="index">
           <!-- <span>产 品</span> -->
-          <div           
+          <div
             v-for="(tag, itemIndex) in tagItem.listInfo"
             :key="itemIndex"
             class="tag-type"
@@ -84,9 +84,9 @@
                   >{{itemTag.name}}</van-tag>
                 </van-col>
                 <van-col span="12" class="item-count-box">
-                  <p>赞 {{item.zans_count ? item.zans_count : 0}}</p>
+                  <p>赞 {{item.likes_count ? item.likes_count : 0}}</p>
                   <p>评论 {{item.comments_count ? item.comments_count: 0}}</p>
-                  <p>想问 {{item.lt_question_count ? item.lt_question_count : 0}}</p>
+                  <p>想问 {{item.asks_count ? item.asks_count : 0}}</p>
                 </van-col>
               </van-row>
             </div>
@@ -109,7 +109,7 @@ export default {
       curPage: 1,
       pageNum: 10,
       total: 0,
-      seachVal: '',
+      seachVal: "",
       shortVal: "1",
       questionStatus: 0,
       questionList: [
@@ -142,11 +142,13 @@ export default {
   },
   methods: {
     getTag() {
-      getTags().then(res => {
+      getTags()
+        .then(res => {
           this.tagList = dataDeal(res.data);
-      }).catch(err => {
+        })
+        .catch(err => {
           console.log(err);
-      });
+        });
     },
     // 返回上一页
     goBack() {
@@ -181,24 +183,24 @@ export default {
         order_answer: this.questionStatus,
         order_model: this.shortVal
       }).then(res => {
-          // debugger
-          let ltData = res.data;
-                    
-          ltData.map(item => {       
-            item.tagList = item.tags
-            this.list.push(item);
-          });
+        // debugger
+        let ltData = res.data;
 
-          this.loading = false;
-          this.finished = true;
-          
-          this.finishedText = this.list.length > 0 ? "没有更多了" : "暂无数据";
-        })
-        // .catch(err => {
-        //   this.finished = true;
-        //   this.loading = false;
-        //   console.log(err);
-        // });
+        ltData.map(item => {
+          item.tagList = item.tags;
+          this.list.push(item);
+        });
+
+        this.loading = false;
+        this.finished = true;
+
+        this.finishedText = this.list.length > 0 ? "没有更多了" : "暂无数据";
+      });
+      // .catch(err => {
+      //   this.finished = true;
+      //   this.loading = false;
+      //   console.log(err);
+      // });
     },
     onQuiz() {
       this.$router.push({

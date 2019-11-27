@@ -1,22 +1,23 @@
 <template>
   <div class="team team-home experience">
-    <van-nav-bar
-      title="经验分享"
-      left-arrow
-      @click-left="onClickLeft" />
+    <van-nav-bar title="经验分享" left-arrow @click-left="onClickLeft" />
     <div class="wrap">
       <van-search
-        left-icon=""
+        left-icon
         right-icon="search"
         v-model="seachVal"
         placeholder="请输入搜索关键词"
         @click="onSearch"
-        @search="onSearch">
-      </van-search>
+        @search="onSearch"
+      ></van-search>
       <!-- banner -->
       <div class="img-box" v-show="bannerList && bannerList.length>0">
         <van-swipe :autoplay="3000" indicator-color="#969799" style="height: 158px;">
-          <van-swipe-item v-for="(item, index) in bannerList" :key="index" @click="bannerClick(item)">
+          <van-swipe-item
+            v-for="(item, index) in bannerList"
+            :key="index"
+            @click="bannerClick(item)"
+          >
             <img v-lazy="item.img_url" />
           </van-swipe-item>
         </van-swipe>
@@ -29,10 +30,12 @@
           </van-dropdown-menu>
         </van-col>
         <van-col span="16">
-          <van-tag round :color="shortVal==='1'? '#F29419': '#969799'" @click="sortClick('1')">最热
+          <van-tag round :color="shortVal==='1'? '#F29419': '#969799'" @click="sortClick('1')">
+            最热
             <van-icon class="rotate" name="exchange" />
           </van-tag>
-          <van-tag round :color="shortVal==='2'? '#F29419': '#969799'" @click="sortClick('2')">最新发布
+          <van-tag round :color="shortVal==='2'? '#F29419': '#969799'" @click="sortClick('2')">
+            最新发布
             <van-icon class="rotate" name="exchange" />
           </van-tag>
         </van-col>
@@ -42,35 +45,27 @@
           v-model="loading"
           :finished="finished"
           :finished-text="finishedText"
-          @load="onLoad">
+          @load="onLoad"
+        >
           <lazy-component class="lazy-box">
-            <div
-              v-for="(item, index) in list"
-              :key="index"
-              class="item-box"
-              @click="goLink(item)">
-              <img
-                v-lazy="item.img_url">
+            <div v-for="(item, index) in list" :key="index" class="item-box" @click="goLink(item)">
+              <img v-lazy="item.img_url" />
               <div class="item-conten">
                 <div class="pic_box">
-                  <van-image
-                    class="pic"
-                    round
-                    :src="item.avatarUrl" />
-                  <div class="name_box">
-                    {{item.users.id}} {{item.users.username}} {{item.users.job}}
-                  </div>
+                  <van-image class="pic" round :src="item.avatarUrl" />
+                  <div class="name_box">{{item.users.id}} {{item.users.username}} {{item.users.job}}</div>
                 </div>
                 <p>{{item.title}}</p>
               </div>
               <div class="item-ft">
-                <span :class="{active: item.zan_status === '1'}"
-                  @click.stop="praiseClick(item)">
-                  <van-icon name="like" />{{item.likes_count ? item.likes_count : 0}}
+                <span :class="{active: item.zan_status === '1'}" @click.stop="praiseClick(item)">
+                  <van-icon name="like" />
+                  {{item.likes_count ? item.likes_count : 0}}
                 </span>
                 <i class="line">|</i>
                 <span>
-                  <van-icon name="comment" />{{item.asks_count ? item.asks_count : 0}}
+                  <van-icon name="comment" />
+                  {{item.asks_count ? item.asks_count : 0}}
                 </span>
               </div>
             </div>
@@ -82,201 +77,206 @@
 </template>
 
 <script>
-
-import { getJyList, getRegions, getBanner, setZan } from '@/api/experience'
+import { getJyList, getRegions, getBanner, setZan } from "@/api/experience";
 export default {
-  name: 'team',
+  name: "team",
   computed: {
-    userInfo () {
-      return this.$store.state.userInfo
+    userInfo() {
+      return this.$store.state.userInfo;
     }
   },
-  data () {
+  data() {
     return {
       baseUrl: window.baseUrl,
-	  region_id:'',
+      region_id: "",
       curPage: 1,
       pageNum: 10,
       total: 0,
-      seachVal: '',
-      shortVal: '1',
+      seachVal: "",
+      shortVal: "1",
       selectVal: 0,
-      selectList: [
-        { text: '全部大区', value: 0 }
-      ],
+      selectList: [{ text: "全部大区", value: 0 }],
       bannerList: [],
       list: [],
       loading: false,
       finished: false,
-      finishedText: '暂无数据'
-    }
+      finishedText: "暂无数据"
+    };
   },
-  mounted () {
-    this.getRegLis()
-    this.getBannerList()
+  mounted() {
+    this.getRegLis();
+    this.getBannerList();
   },
   methods: {
     // 返回上一页
-    goBack () {
-      this.$router.go(-1)
+    goBack() {
+      this.$router.go(-1);
     },
-    onClickLeft () {
-      this.goBack()
+    onClickLeft() {
+      this.goBack();
     },
-    onSearch () {
+    onSearch() {
       this.$router.push({
-        path: '/seachExperience'
-      })
+        path: "/seachExperience"
+      });
     },
-    bannerClick (item) {
-      if (item.link_type + '' === '1') {
-        switch (item.cid + '') {
-          case '1':
+    bannerClick(item) {
+      if (item.link_type + "" === "1") {
+        switch (item.cid + "") {
+          case "1":
             // 论坛
             this.$router.push({
-              path: '/forumDetail',
+              path: "/forumDetail",
               query: { id: item.url }
-            })
-            break
-          case '3':
+            });
+            break;
+          case "3":
             // 团队展示
             this.$router.push({
-              path: '/teamDetail',
+              path: "/teamDetail",
               query: { id: item.url }
-            })
-            break
-          case '2':
+            });
+            break;
+          case "2":
             // 经验分享
             this.$router.push({
-              path: '/experienceDetail',
+              path: "/experienceDetail",
               query: { id: item.url }
-            })
-            break
+            });
+            break;
           default:
             // 外部链接
             // window.location.href = item.url
-            break
+            break;
         }
-      } else if (item.link_type + '' === '2') {
-        window.location.href = item.url
+      } else if (item.link_type + "" === "2") {
+        window.location.href = item.url;
       }
     },
-    praiseClick (item) {
+    praiseClick(item) {
       setZan({
         post_id: item.id,
         nhsuser_id: this.userInfo.id,
         zan_nhsuser_id: item.nhsuser_id
-      }).then(res => {
-        if (item.zanNum > res.data.zanNum) {
-          item.zan_status = '0'
-          this.$toast('取消点赞')
-          item.zanNum = res.data.zanNum
-        } else {
-          item.zan_status = '1'
-          this.$toast('点赞成功，恭喜您获得2积分')
-          item.zanNum = res.data.zanNum
-        }
-      }).catch(err => {
-        console.log(err)
       })
+        .then(res => {
+          if (item.zanNum > res.data.zanNum) {
+            item.zan_status = "0";
+            this.$toast("取消点赞");
+            item.zanNum = res.data.zanNum;
+          } else {
+            item.zan_status = "1";
+            this.$toast("点赞成功，恭喜您获得2积分");
+            item.zanNum = res.data.zanNum;
+          }
+        })
+        .catch(err => {
+          console.log(err);
+        });
     },
-    getBannerList () {
-      getBanner({ cid: 2 }).then(res => {
-        if (res.data && res.data.length > 0) {
-          this.bannerList = res.data
-        } else {
-          this.bannerList = []
-        }
-      }).catch(err => {
-        console.log(err)
-      })
+    getBannerList() {
+      getBanner({ cid: 2 })
+        .then(res => {
+          if (res.data && res.data.length > 0) {
+            this.bannerList = res.data;
+          } else {
+            this.bannerList = [];
+          }
+        })
+        .catch(err => {
+          console.log(err);
+        });
     },
-    onLoad () {
-      let region_name = ''
+    onLoad() {
+      let region_name = "";
       this.selectList.forEach((item, index) => {
         if (this.selectVal == item.value) {
-          region_name = item.text
+          region_name = item.text;
         }
-      })
-      if (region_name == '全部大区') {
-        region_name = ''
+      });
+      if (region_name == "全部大区") {
+        region_name = "";
       }
       getJyList({
         current_page: this.curPage,
         page_num: this.pageNum,
         region_id: region_name,
         order_mode: this.shortVal
-      }).then(res => {
-		  //console.log(res.data)
-        let jyData = res.data
-		
-        jyData.map(item => {
-          if (item.cover) {
-            item.imageUrl = this.baseUrl + item.cover
-          } else {
-            item.imageUrl = 'https://img.yzcdn.cn/vant/apple-1.jpg'
-          }
-          // if (item.img_dir) {
-          //   item.imageUrl = item.img_dir.split(',')[0] ? this.baseUrl + item.img_dir.split(',')[0] : this.baseUrl + item.img_dir
-          // }
-          this.list.push(item)
-        })
-        this.curPage = res.data.current_page - 0 + 1
-        this.pageNum = res.data.page_num
-        this.total = res.data.total
-
-        // 加载状态结束
-        this.loading = false
-		this.finished = true
-        // 数据全部加载完成
-        // if (this.list.length >= this.total) {
-        //   this.finished = true
-        // }
-        this.finishedText = this.list.length > 0 ? '没有更多了' : '暂无数据'
-      }).catch(err => {
-        // 加载状态结束
-        // this.finished = true
-        // this.loading = false
-        console.log(err)
       })
+        .then(res => {
+          //console.log(res.data)
+          let jyData = res.data;
+
+          jyData.map(item => {
+            if (item.cover) {
+              item.imageUrl = this.baseUrl + item.cover;
+            } else {
+              item.imageUrl = "http://quechao.gf.bj.cn/storage/cover.jpg";
+            }
+            // if (item.img_dir) {
+            //   item.imageUrl = item.img_dir.split(',')[0] ? this.baseUrl + item.img_dir.split(',')[0] : this.baseUrl + item.img_dir
+            // }
+            this.list.push(item);
+          });
+          this.curPage = res.data.current_page - 0 + 1;
+          this.pageNum = res.data.page_num;
+          this.total = res.data.total;
+
+          // 加载状态结束
+          this.loading = false;
+          this.finished = true;
+          // 数据全部加载完成
+          // if (this.list.length >= this.total) {
+          //   this.finished = true
+          // }
+          this.finishedText = this.list.length > 0 ? "没有更多了" : "暂无数据";
+        })
+        .catch(err => {
+          // 加载状态结束
+          // this.finished = true
+          // this.loading = false
+          console.log(err);
+        });
     },
     // 获取区域
-    getRegLis () {
-      getRegions().then(res => {
-		  console.log(res)
-        if (res.data && res.data.length > 0) {
-          this.selectList = res.data.map(item => {
-            item.text = item.name
-            item.value = item.id
-            return item
-          })
-          this.selectList.unshift({
-            text: '全部大区',
-            value: 0,
-            id: 0
-          })
-          this.selectVal = this.selectList[0].id
-        }
-      }).catch(err => {
-        console.log(err)
-      })
+    getRegLis() {
+      getRegions()
+        .then(res => {
+          console.log(res);
+          if (res.data && res.data.length > 0) {
+            this.selectList = res.data.map(item => {
+              item.text = item.name;
+              item.value = item.id;
+              return item;
+            });
+            this.selectList.unshift({
+              text: "全部大区",
+              value: 0,
+              id: 0
+            });
+            this.selectVal = this.selectList[0].id;
+          }
+        })
+        .catch(err => {
+          console.log(err);
+        });
     },
-    sortClick (val) {
-      this.curPage = 1
-      this.loading = true
-      this.finished = false
-      this.list = []
-      this.shortVal = val || this.shortVal
-      this.onLoad()
+    sortClick(val) {
+      this.curPage = 1;
+      this.loading = true;
+      this.finished = false;
+      this.list = [];
+      this.shortVal = val || this.shortVal;
+      this.onLoad();
     },
-    goLink (row) {
+    goLink(row) {
       this.$router.push({
-        path: '/experienceDetail',
+        path: "/experienceDetail",
         query: { id: row.id, source: 1 }
-      })
+      });
     }
   }
-}
+};
 </script>
 
 <style lang="less" scoped>

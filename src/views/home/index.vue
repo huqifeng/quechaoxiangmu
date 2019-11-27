@@ -71,6 +71,8 @@ export default {
       } else {
         this.getBannerList();
       }
+    } else {
+      this.getBannerList();
     }
   },
   methods: {

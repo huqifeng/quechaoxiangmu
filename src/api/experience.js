@@ -1,6 +1,6 @@
 import http from '@/utils/request'
 // 获取banner
-export function getBanner (data) {
+export function getBanner(data) {
   return http.request({
     url: '/api/banner',
     method: 'get',
@@ -10,10 +10,10 @@ export function getBanner (data) {
   })
 }
 // 获取标签
-export function getTags (data) {
+export function getTags(data) {
   return http.request({
     //url: '/api/tags/index',http://qc.gf.bj.cn/api/tag
-	url: '/api/tag',
+    url: '/api/tag',
     method: 'get',
     params: {
       ...data
@@ -21,10 +21,10 @@ export function getTags (data) {
   })
 }
 // 获取 区域
-export function getRegions (data) {
+export function getRegions(data) {
   return http.request({
-   // url: '/api/regions/index',
-    url:'api/forum_region',
+    // url: '/api/regions/index',
+    url: 'api/forum_region',
     method: 'get',
     params: {
       ...data
@@ -33,10 +33,10 @@ export function getRegions (data) {
 }
 
 // 经验分享列表
-export function getJyList (data) {
+export function getJyList(data) {
   return http.request({
     //url: '/api/jyposts/index',
-	 url: '/api/forum?block_id=2',
+    url: '/api/forum?block_id=2',
     method: 'get',
     params: {
       ...data
@@ -45,9 +45,9 @@ export function getJyList (data) {
 }
 
 // 经验分享列表搜索
-export function searchJyList (data) {
+export function searchJyList(data) {
   return http.request({
-    url: '/api/jyposts/searchJypost',
+    url: '/api/forum?block_id=2',
     method: 'get',
     params: {
       ...data
@@ -56,7 +56,7 @@ export function searchJyList (data) {
 }
 
 // 经验分享详情
-export function getJyDetail (data) {
+export function getJyDetail(data) {
   return http.request({
     url: `/api/forum/${data.post_id}`,
     method: 'get',
@@ -67,7 +67,7 @@ export function getJyDetail (data) {
 }
 
 // 经验分享帖子评论获取
-export function getCmts (data) {
+export function getCmts(data) {
   return http.request({
     url: '/api/jyposts/getCmts',
     method: 'get',
@@ -78,7 +78,7 @@ export function getCmts (data) {
 }
 
 // 经验分享点赞和取消赞
-export function setZan (data) {
+export function setZan(data) {
   return http.request({
     url: '/api/jyposts/zan',
     method: 'post',
@@ -87,7 +87,7 @@ export function setZan (data) {
 }
 
 // 经验分享详情评论帖子
-export function commentJy (data) {
+export function commentJy(data) {
   return http.request({
     url: '/api/jyposts/comment',
     method: 'post',

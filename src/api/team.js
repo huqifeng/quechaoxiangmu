@@ -23,7 +23,7 @@ export function getRegions(data) {
 // 团队展示创建
 export function addTmposts(data) {
   return http.request({
-    url: '/api/tmposts/store',
+    url: '/api/forum',
     method: 'post',
     data
   })
@@ -31,7 +31,7 @@ export function addTmposts(data) {
 // 团队展示文件上传
 export function fileUpload(data) {
   return http.request({
-    url: '/api/tmposts/fileupload',
+    url: '/api/upload ',
     method: 'post',
     data
   })
@@ -51,7 +51,7 @@ export function getTeamList(data) {
 // 团队展示列表搜索
 export function searchTeamList(data) {
   return http.request({
-    url: '/api/tmposts/searchTmpost',
+    url: '/api/forum',
     method: 'get',
     params: {
       ...data

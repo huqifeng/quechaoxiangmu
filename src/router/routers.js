@@ -17,7 +17,18 @@ export default [{
     title: '首页',
     hideInMenu: true
   },
-  component: Home
+  component: Home,
+  beforeRouteUpdate(to, from, next) {
+    if (getSessionStorage("token").length == 0) {
+      let token = getSessionStorage("token");
+      debugger;
+      if (token.length === 0) {
+        this.login();
+      } else {
+        this.getBannerList();
+      }
+    }
+  },
 }, {
   path: '/team',
   name: 'team',

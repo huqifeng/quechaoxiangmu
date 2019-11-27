@@ -27,18 +27,18 @@
     <div class="img-box">
       <video
         class="video"
-        v-if="detailData.type_id == '1' && detailData.img_dir"
-        :src="baseUrl + detailData.img_dir"
+        v-if="detailData.type_id == '2' && detailData.img_url.length>0"
+        :src="detailData.img_url[0]"
         controls="controls"
       >your browser does not support the video tag</video>
       <van-swipe
-        v-if="detailData.type_id == '2'"
+        v-if="detailData.type_id == '1' && detailData.img_url.length>0"
         :autoplay="3000"
         indicator-color="#dd2279"
         style="height: 200px;"
       >
         <van-swipe-item
-          v-for="(image, index) in detailData.imageUrl"
+          v-for="(image, index) in detailData.img_url"
           :key="index"
           @click="imgClick(image)"
         >
@@ -109,12 +109,12 @@
       <div class="btn-box" v-show="!isDiscuss">
         <span :class="{active: detailData.zan_status === '1'}" @click="praiseClick()">
           <van-icon name="like" />
-          赞 {{detailData.zanNum}}
+          赞 {{detailData.likes_count}}
         </span>
         <i class="line">|</i>
         <span @click="commentClick()">
           <van-icon name="comment" />
-          评论 {{detailData.commentsCount}}
+          评论 {{detailData.comments_count}}
         </span>
       </div>
     </div>
@@ -149,7 +149,7 @@ export default {
       list: [],
       loading: false,
       finished: false,
-      finishedText: "暂无数据"
+      finishedText: "没有更多了"
     };
   },
   mounted() {
@@ -181,10 +181,12 @@ export default {
           this.loading = false;
           this.finished = true;
           // this.onLoad();
-          if (this.detailData.imageUrl) {
-            this.detailData.imageUrl = this.detailData.imageUrl.split(",")[0];
+          if (this.detailData.img_url) {
+            this.detailData.img_url = this.detailData.img_url.split(",");
             // ? this.detailData.img_dir.split(",")
             // : this.baseUrl + this.detailData.img_dir;
+          } else {
+            this.detailData.img_url = [];
           }
         })
         .catch(err => {

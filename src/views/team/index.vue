@@ -155,20 +155,21 @@ export default {
     },
     // 获取列表
     onLoad() {
-      let region_name = "";
-      this.selectList.forEach((item, index) => {
-        if (this.selectVal == item.value) {
-          region_name = item.text;
-        }
-      });
-      if (region_name == "全部大区") {
-        region_name = "";
-      }
+      // let region_name = "";
+      // this.selectList.forEach((item, index) => {
+      //   if (this.selectVal == item.value) {
+      //     region_name = item.text;
+      //   }
+      // });
+      // if (region_name == "全部大区") {
+      //   region_name = "";
+      // }
+      // debugger;
       getTeamList({
         // current_page: this.curPage,
         // page_num: this.pageNum,
-        // region_id: region_name,
-        // order_mode: this.shortVal
+        region_id: this.selectVal,
+        order_mode: this.shortVal,
         block_id: "3"
       })
         .then(res => {
@@ -178,7 +179,7 @@ export default {
             if (item.cover) {
               item.imageUrl = this.baseUrl + item.cover;
             } else {
-              item.imageUrl = "https://img.yzcdn.cn/vant/apple-1.jpg";
+              item.imageUrl = "http://quechao.gf.bj.cn/storage/cover.jpg";
             }
             this.list.push(item);
           });
