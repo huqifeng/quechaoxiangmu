@@ -7,33 +7,34 @@
     <!-- 头部 -->
     <div class="wrap detail-hd">
       <dl>
-        <dt><img src="https://img.yzcdn.cn/vant/cat.jpeg"></dt>
+        <dt><img :src="detailData.users && detailData.users.avatar"></dt>
         <dd>
-          <h4>张XX</h4>
-          <time>2019-10-29</time>
+          <h4>{{detailData.users && detailData.users.username}}</h4>
+          <time>{{detailData.created_at && detailData.created_at.split(' ')[0]}}</time>
         </dd>
       </dl>
       <div class="detail-title-box">
-        <h2 class="detail-title">问题:xxxxxxxxxxxxxxxxxxxxxxx...</h2>
-        <div class="inquisitive-box" :class="{active: 0}" @click="addInquisitive()">
+        <h2 class="detail-title">问题:{{detailData.title}}</h2>
+        <div class="inquisitive-box" :class="{active: detailData.user_asks !== null}" @click="addInquisitive()">
           <a href="javascript:;">
             <van-icon name="question-o" />我也想问</a>
-          <p>10人</p>
+          <p>{{detailData.asks_count}}人</p>
         </div>
       </div>
       <div class="tag-box">
         <span
           v-for="(item, index) in tagList"
+          v-show="item.name"
           :key="index"
           class="tag"
-          :class="{active:item.checked}">{{item.text}}</span>
+          :class="{active:item.checked}">{{item.name}}</span>
       </div>
     </div>
     <!-- 头部 -->
     <div class="detail-info-box">
       <h5>详情描述:</h5>
       <div class="detail-info intwoline">
-        XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+        {{ detailData.content}}
       </div>
       <div class="detail-img">
         <img v-show="index < 3" v-for="(item, index) in imageList" :key="index" @click="getImg(imageList,index)" :src="item" alt="">
@@ -48,7 +49,7 @@
           </van-col>
           <van-col span="6" class="select-box">
             <van-icon class="rotate" name="exchange" />
-            <van-dropdown-menu active-color="#DD2279">
+            <van-dropdown-menu active-color="#00c1b2">
               <van-dropdown-item v-model="selectVal" :options="selectList" @change="sortClick()" />
             </van-dropdown-menu>
           </van-col>
@@ -58,33 +59,33 @@
         <van-list
           v-model="loading"
           :finished="finished"
-          finished-text="没有更多了"
+          :immediate-check="false"
+          :finished-text="finishedText"
           @load="onLoad">
+          <!-- 评论列表回复 -->
           <div
-            v-for="(item, index) in list"
+            v-for="(item, index) in officialLsit"
             :key="index"
-            class="comment-item-box line">
-            <img src="https://img.yzcdn.cn/vant/cat.jpeg">
+            class="comment-item-box line ssss">
+            <img :src="item.users.avatar && item.users.avatar">
             <div class="comment-item-content">
               <div class="comment-item-hd">
                 <div class="comment-item-hd-name">
-                  <h4>张三 销售部</h4>
-                  <time>10-29 19:23</time>
+                  <h4><span v-if="item.is_office" class="official">官方回复</span>{{item.users.username}} {{item.users.department}}</h4>
+                  <time>{{item.updated_at}}</time>
                 </div>
-                <div class="accept-btn" :class="{disabled: 0}">采纳</div>
+                <!-- <div v-if="userInfo.id+'' === detailData.nhsuser_id" class="accept-btn" :class="{disabled: item.caina === 1}" @click="addInquisitive(item, 2,item.id)">采纳</div> -->
               </div>
-              <p>文字文字文字文字文字文字文字文字文字文字文字文字文字 <span class="reply-btn" @click="commentClick(item.id)">回复</span></p>
-              <div class="reply-box">
+              <p>{{item.content}} <span class="reply-btn" @click="commentClick(item.id)">回复</span></p>
+              <div class="reply-box" v-if="item.reply&&item.reply.length > 0">
                 <div class="reply-list" :class="{show:item.show}">
-                  <p>李四：文字文字文字文字文字文字文字文字文字文</p>
-                  <p>李四：文字文字文字文字文字文字文字文字文字文</p>
-                  <p>李四：文字文字文字文字文字文字文字文字文字文</p>
-                  <p>李四：文字文字文字文字文字文字文字文字文字文</p>
+                  <p v-for="(replayItem, replayIndex) in item.reply" :key="replayIndex">{{replayItem.users.username}}：{{replayItem.content}}</p>
                 </div>
-                <span @click="moreReplyClick(item)">更多回复</span>
+                <span v-if="item.reply && item.reply.length >= 3" @click="moreReplyClick(item)">更多回复</span>
               </div>
             </div>
           </div>
+          <!-- 评论列表回复 -->
         </van-list>
       </div>
     </div>
@@ -101,14 +102,14 @@
         </van-search>
       </div>
       <div class="btn-box" v-show="!isDiscuss">
-        <span @click="praiseClick()">
+        <span :class="{active: detailData.user_likes !== null}" @click="praiseClick()">
           <van-icon name="like" />
-          赞100
+          赞 {{detailData.likes_count}}
         </span>
         <i class="line">|</i>
         <span @click="commentClick()">
           <van-icon name="comment" />
-          评论100
+          评论 {{detailData.comments_count}}
         </span>
       </div>
     </div>
@@ -118,56 +119,87 @@
 
 <script>
 import { ImagePreview } from 'vant'
+import { getLtDetail, setZan, commentLt, addOpera, replyLt } from '@/api/forum'
 export default {
-  data () {
+  data() {
     return {
-      selectVal: 0,
+      baseUrl: window.baseUrl,
+      curPage: 1,
+      pageNum: 10,
+      total: 0,
+      selectVal: 1,
+      detailData: {},
+      officialLsit: [],
+      comments: [],
       isDiscuss: false,
       discussVal: '',
+      fromCmtid: '',
+      cmtType: '',
       selectList: [
-        { text: '按热度', value: 0 },
+        { text: '按热度', value: 2 },
         { text: '按时间', value: 1 }
       ],
-      imageList: [
-        'https://img.yzcdn.cn/vant/apple-1.jpg',
-        'https://img.yzcdn.cn/vant/apple-2.jpg',
-        'https://img.yzcdn.cn/vant/apple-3.jpg',
-        'https://img.yzcdn.cn/vant/apple-4.jpg',
-        'https://img.yzcdn.cn/vant/apple-5.jpg'
-      ],
-      tagList: [
-        { text: '蔼儿舒', value: 0 },
-        { text: '蔼儿舒', value: 1 },
-        { text: '蔼儿舒', value: 2 }
-      ],
+      imageList: [],
+      tagList: [],
       list: [],
       loading: false,
-      finished: false
+      finished: false,
+      finishedText: '暂无数据'
     }
   },
-  mounted () {
-
+  mounted() {
+    this.postId = this.$route.query.id
+    this.getData()
   },
   methods: {
     // 返回上一页
-    goBack () {
+    goBack() {
       this.$router.go(-1)
     },
-    onClickLeft () {
+    onClickLeft() {
       this.goBack()
     },
-    getImg (images, index) {
+    getImg(images, index) {
+      let _this = this
+      let imagesList = []
+      images.map(function (item) {
+        imagesList.push(item)
+      })
       ImagePreview({
-        images: images,
+        images: imagesList,
         showIndex: true,
         loop: false,
         startPosition: index
       })
     },
-    imgClick (item) {
-      window.location.href = item
+    imgClick(item) {
+      // window.location.href = item
     },
-    moreReplyClick (item) {
+    getData() {
+      let that = this
+      getLtDetail({
+        order_model: this.selectVal,
+        id: that.postId
+      }).then(res => {
+        console.log(res)
+        that.loading = false
+        that.finished = true
+        that.detailData = res.data
+        that.officialLsit = that.detailData.comments
+        that.tagList = that.detailData.tags
+
+        if (that.detailData.img_url) {
+          that.imageList = that.detailData.img_url.split(',')[0] ? that.detailData.img_url.split(',') : [that.detailData.img_url]
+        }
+        this.finishedText = this.officialLsit.length > 0 ? "没有更多了" : "暂无数据";
+      }).catch(err => {
+        // 加载状态结束
+        this.loading = false
+        this.finished = true
+        console.log(err)
+      })
+    },
+    moreReplyClick(item) {
       let that = this
       if (typeof item.show === 'undefined') {
         that.$set(item, 'show', true)
@@ -175,44 +207,96 @@ export default {
         item.show = !item.show
       }
     },
-    addInquisitive () {
-      // 点击想问
+    addInquisitive() {
+      if (this.detailData.user_asks !== null) {
+        return false
+      }
 
+      // 点击想问
+      addOpera({
+        forum_id: this.detailData.id
+      }).then(res => {
+
+        this.getData()
+      }).catch(err => {
+        console.log(err)
+      })
     },
-    onDiscuss () {
+    onDiscuss() {
+      if (this.discussVal.trim() === '') {
+        this.$toast('请输入评论内容')
+        return false
+      }
+      if (this.cmtType === 2) {
+        replyLt({
+          forum_id: this.detailData.id,
+          block_id: 1,
+          forum_comment_id: this.fromCmtid,
+          content: this.discussVal.trim()
+        }).then(res => {
+          console.log(res)
+          this.discussVal = ''
+          this.curPage = 1
+          this.loading = true
+          this.finished = false
+          this.getData()
+          this.$toast('回复成功，恭喜您获得1积分')
+        }).catch(err => {
+          console.log(err)
+        })
+      }
+      if (this.cmtType === 1) {
+        commentLt({
+          forum_id: this.detailData.id,
+          block_id: 1,
+          content: this.discussVal.trim()
+        }).then(res => {
+          console.log(res)
+          this.discussVal = ''
+          this.curPage = 1
+          this.loading = true
+          this.finished = false
+          this.getData()
+          this.$toast('评论成功，恭喜您获得1积分')
+        }).catch(err => {
+          console.log(err)
+        })
+      }
       this.isDiscuss = false
-      console.log(this.discussVal)
-      this.$toast('评论')
     },
-    praiseClick () {
-      this.$toast('点赞')
+    praiseClick() {
+      setZan({
+        forum_id: this.detailData.id
+      }).then(res => {
+        if (res.data.is_like) {
+          this.detailData.likes_count++
+          this.detailData.user_likes = {}
+          this.$toast('点赞成功')
+        } else {
+          this.detailData.user_likes = null
+          this.detailData.likes_count--
+          this.$toast('取消点赞')
+        }
+      }).catch(err => {
+        console.log(err)
+      })
     },
-    commentClick (id) {
+    commentClick(id) {
       if (id) {
-        this.$toast('去回复')
+        this.fromCmtid = id
+        this.cmtType = 2
       } else {
-        this.$toast('去评论')
+        this.fromCmtid = 0
+        this.cmtType = 1
       }
       this.isDiscuss = true
     },
-    onLoad () {
-      let _this = this
-      // 异步更新数据
-      setTimeout(() => {
-        for (let i = 0; i < _this.imageList.length; i++) {
-          this.list.push({ id: _this.list.length + 1, img: _this.imageList[i], title: _this.list.length + 1 })
-        }
-        // 加载状态结束
-        this.loading = false
-
-        // 数据全部加载完成
-        if (this.list.length >= 40) {
-          this.finished = true
-        }
-      }, 500)
+    onLoad() {
     },
-    sortClick () {
-      this.$toast('排序')
+    sortClick() {
+      this.loading = true
+      this.finished = false
+      this.getData()
     }
   }
 }
@@ -264,9 +348,10 @@ export default {
     font-size: 12px;
   }
 }
+
 .inquisitive-box {
   a {
-    color: #333333;
+    color: #00c1b2;
     font-size: 0.32rem;
     text-align: center;
     display: flex;
@@ -308,7 +393,7 @@ export default {
 }
 .detail-img {
   display: flex;
-  justify-content: space-between;
+  // justify-content: space-between;
   padding: 10px 0;
   margin-bottom: 5px;
 }
@@ -317,6 +402,7 @@ export default {
   height: 80px;
   object-fit: cover;
   border-radius: 15px;
+  margin-right: 15px;
 }
 .video {
   width: 100%;
@@ -327,6 +413,9 @@ export default {
   line-height: 36px;
   font-size: 14px;
   color: #333;
+}
+.official {
+  color: #00c1b2;
 }
 .select-box {
   display: flex;
@@ -442,6 +531,9 @@ export default {
     line-height: inherit;
   }
   .van-icon-like {
+    color: #fff;
+  }
+  .active .van-icon-like {
     color: #ff0000;
   }
 }

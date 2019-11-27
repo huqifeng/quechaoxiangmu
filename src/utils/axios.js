@@ -18,8 +18,8 @@ class HttpRequest {
   }
   getInsideConfig(data) {
     const config = {
-      baseURL: '/api/', // 开发环境
-      // baseURL: '/', // 打包
+      // baseURL: '/api/', // 开发环境
+      baseURL: '/', // 打包
       headers: {
         //
       }
