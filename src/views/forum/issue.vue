@@ -9,17 +9,37 @@
         <span class="form-item-laber">标题</span>
         <van-search left-icon="" placeholder="请输入" v-model="titleVal" />
       </div>
-      <div v-for="(tagItem,index) in tagList"
-        :key="index"
-        class="form-item tag-box">
-        <span class="form-item-laber">标签</span>
+      <div class="form-item tag-box">
+        <span class="form-item-laber">产品</span>
         <div>
           <span
-            v-for="(item, itemIndex) in tagItem.listInfo"
-            :key="itemIndex"
+            v-for="(item, index) in tagList1"
+            :key="index"
             @click="selectTag(item)"
             class="tag"
-            :class="{active:item.checked}">{{item.name}}</span>
+            :class="{active:item.checked}">{{item.text}}</span>
+        </div>
+      </div>
+      <div class="form-item tag-box">
+        <span class="form-item-laber">部门</span>
+        <div>
+          <span
+            v-for="(item, index) in tagList"
+            :key="index"
+            @click="selectTag(item)"
+            class="tag"
+            :class="{active:item.checked}">{{item.text}}</span>
+        </div>
+      </div>
+      <div class="form-item tag-box">
+        <span class="form-item-laber">分类三</span>
+        <div>
+          <span
+            v-for="(item, index) in tagList"
+            :key="index"
+            @click="selectTag(item)"
+            class="tag"
+            :class="{active:item.checked}">{{item.text}}</span>
         </div>
       </div>
       <div class="form-item">
@@ -29,27 +49,25 @@
         </div>
       </div>
       <div class="form-item uploader-box">
-        <!-- <van-dropdown-menu active-color="#00c1b2">
+        <van-dropdown-menu active-color="#00c1b2">
           <van-dropdown-item v-model="selectVal" :disabled="fileList.length>0" :options="selectList" @click="selectClick()" />
-        </van-dropdown-menu> -->
+        </van-dropdown-menu>
         <van-uploader
-          v-if="selectVal===1"
+          v-if="selectVal===0"
           v-model="fileList"
           accept="image/*"
           :after-read="afterRead"
           :before-read="beforeRead"
-          @delete="fileDelete"
           multiple
           :max-count="9" />
-        <!-- <van-uploader
+        <van-uploader
           v-if="selectVal===1"
           v-model="fileList"
           accept="video/*"
           :after-read="afterRead"
           :before-read="beforeRead"
-          @delete="fileDelete"
           multiple
-          :max-count="1" /> -->
+          :max-count="1" />
       </div>
       <div class="form-item-btn" @click="submit()">
         提 交
@@ -59,47 +77,40 @@
 </template>
 
 <script>
-import { dataDeal } from '@/utils/util'
-import { getTags, addLtposts, fileUpload } from '@/api/forum'
 export default {
-  computed: {
-    userInfo () {
-      return this.$store.state.userInfo
-    }
-  },
   data () {
     return {
       titleVal: '',
-      selectVal: 1,
+      selectVal: 0,
       selectArr: [],
       textVal: '',
       fileLen: 9,
       selectList: [
-        { text: '图片', value: 1 }
-        // ,
-        // { text: '视频', value: 2 }
+        { text: '图片', value: 0 },
+        { text: '视频', value: 1 }
       ],
-      tagList: [],
+      tagList: [
+        { text: '蔼儿舒', value: 0 },
+        { text: '蔼儿舒', value: 1 },
+        { text: '蔼儿舒', value: 2 },
+        { text: '蔼儿舒', value: 3 },
+        { text: '蔼儿舒', value: 4 },
+        { text: '蔼儿舒', value: 5 },
+        { text: '蔼儿舒', value: 6 }
+      ],
+      tagList1: [
+        { text: '蔼儿舒', value: 7 },
+        { text: '蔼儿舒', value: 8 },
+        { text: '蔼儿舒', value: 9 }
+      ],
       fileList: [],
       fileVals: []
     }
   },
   mounted () {
-    this.getTag()
+
   },
   methods: {
-    getTag () {
-      getTags({
-        // tag_type: 1,
-        post_type: 1,
-        select_mode: 1
-      }).then(res => {
-        this.tagList = dataDeal(res.data)
-        console.log(this.tagList)
-      }).catch(err => {
-        console.log(err)
-      })
-    },
     // 返回上一页
     goBack () {
       this.$router.go(-1)
@@ -108,44 +119,23 @@ export default {
       this.goBack()
     },
     selectClick () {
-      // 选择上传文件
+
     },
-    fileDelete (file, detail) {
-      // 删除文件预览时
-      this.fileVals.splice(detail.index, 1)
-    },
-    afterRead (res) {
-      this.$toast.loading({
-        duration: 0,
-        message: '上传中...',
-        forbidClick: true
-      })
+    afterRead (file) {
       // 此时可以自行将文件上传至服务器
-      let formData = new FormData()
-      formData.append('imgFileName', res.file)
-      fileUpload(formData).then(res => {
-        this.$toast.clear()
-        this.$toast.success('上传成功')
-        this.fileVals.push(res.data.picUrl)
-      }).catch(err => {
-        console.log(err)
-      })
+      console.log(this.imgFileList, file)
     },
     beforeRead (file) {
-      if (file.length > 1) {
-        this.$toast.fail('请选择单张图片上传')
-        return
-      }
       let FileExt = file.name.replace(/.+\./, '')
       let isLimit = file.size / 1024 / 1024 <= 100
       console.log(file)
-      if (this.selectVal === 1) {
+      if (this.selectVal === 0) {
         if (['jpg', 'png', 'jpeg', 'pic', 'tif', 'bmp', 'gif'].indexOf(FileExt.toLowerCase()) === -1) {
           this.$toast.fail('请上传图片')
           return false
         }
       }
-      if (this.selectVal === 2) {
+      if (this.selectVal === 1) {
         if (['mp4', 'avi'].indexOf(FileExt.toLowerCase()) === -1) {
           this.$toast.fail('请上传视频')
           return false
@@ -155,6 +145,7 @@ export default {
         this.$toast.fail('上传文件不能超过100M')
         return false
       }
+
       return true
     },
     selectTag (item) {
@@ -165,37 +156,22 @@ export default {
         item.checked = !item.checked
       }
       if (item.checked) {
-        that.selectArr.push(item.id)
+        that.selectArr.push(item.value)
       } else {
         for (var i = 0; i < that.selectArr.length; i++) {
-          if (that.selectArr[i] === item.id) {
+          if (that.selectArr[i] === item.value) {
             that.selectArr.splice(i, 1)
           }
         }
       }
     },
     submit () {
-      console.log(this.fileVals)
       let data = {
-        block_id: 1,
-        type_id: this.selectVal,
         title: this.titleVal.trim(),
-        content: this.textVal,
-        tag_ids: this.selectArr,
-        img_url: this.fileVals
+        selectArr: this.selectArr,
+        fileVals: this.fileVals
       }
       console.log(data)
-      addLtposts(data).then(res => {
-        let _this = this
-        if (res.code === 200) {
-          this.$toast.success('提问成功，恭喜您获得1积分')
-          setTimeout(function () {
-            _this.goBack()
-          }, 500)
-        }
-      }).catch(err => {
-        console.log(err)
-      })
     }
   }
 }
@@ -249,9 +225,6 @@ export default {
     background: #00c1b2;
     color: #fff;
   }
-}
-.textarea-box {
-  padding-bottom: 10px;
 }
 .textarea-box textarea {
   width: 325px;
